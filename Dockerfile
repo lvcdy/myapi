@@ -14,19 +14,28 @@ RUN pnpm install --prod --frozen-lockfile --ignore-scripts \
     && pnpm store prune \
     && rm -rf /root/.local/share/pnpm
 
-# 第二阶段：最小化运行镜像
-FROM node:20-alpine AS runner
+# 第二阶段：解压数据
+FROM alpine:latest AS data-extractor
 
-# 设置环境变量
-ENV NODE_ENV=production
+RUN apk add --no-cache tar
+
+WORKDIR /data
+COPY src/data/sentences.tar.gz ./
+RUN tar -xzf sentences.tar.gz && rm sentences.tar.gz
+
+# 第三阶段：准备阶段
+FROM node:20-alpine AS prepare
 
 WORKDIR /app
 
-# 仅从构建阶段复制必要的文件
+# 从构建阶段复制依赖
 COPY --from=builder /app/node_modules ./node_modules
 COPY package.json ./
 COPY src ./src
 COPY index.js ./
+
+# 从数据提取阶段复制解压后的数据
+COPY --from=data-extractor /data/src/data/sentences ./src/data/sentences
 
 # 清理不必要的文件以减小镜像大小
 RUN rm -rf /var/cache/apk/* \
@@ -37,19 +46,19 @@ RUN rm -rf /var/cache/apk/* \
     && find /app/node_modules -name "*.map" -delete \
     && find /app/node_modules -type d -name "test" -exec rm -rf {} + 2>/dev/null || true \
     && find /app/node_modules -type d -name "tests" -exec rm -rf {} + 2>/dev/null || true \
-    && find /app/node_modules -type d -name "docs" -exec rm -rf {} + 2>/dev/null || true
+    && find /app/node_modules -type d -name "docs" -exec rm -rf {} + 2>/dev/null || true \
+    && find /app/node_modules -type d -name "example*" -exec rm -rf {} + 2>/dev/null || true
 
-# 创建非 root 用户以提升安全性
-RUN addgroup -g 1001 -S nodejs \
-    && adduser -S nodejs -u 1001 -G nodejs \
-    && chown -R nodejs:nodejs /app
+# 第四阶段：Distroless 运行时（超小镜像）
+FROM gcr.io/distroless/nodejs20-debian12:nonroot
 
-USER nodejs
+ENV NODE_ENV=production
+
+WORKDIR /app
+
+# 复制所有应用文件
+COPY --from=prepare /app /app
 
 EXPOSE 3000
 
-# 健康检查
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:3000/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"
-
-CMD ["node", "index.js"]
+CMD ["index.js"]

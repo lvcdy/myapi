@@ -38,8 +38,6 @@ docs
 .github
 .gitpod.yml
 
-# 其他
-.env
-.env.local
-.env.*.local
-.editorconfig
+# 数据目录（使用压缩后的文件）
+src/data/sentences/
+
