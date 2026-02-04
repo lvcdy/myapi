@@ -1,0 +1,22 @@
+services:
+  myapi:
+    image: ghcr.io/lvcdy/myapi:latest
+    container_name: myapi
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - TIMEOUT=8000
+    volumes:
+      - myapi-logs:/app/logs
+    networks:
+      - myapi-network
+
+volumes:
+  myapi-logs:
+    driver: local
+
+networks:
+  myapi-network:
+    driver: bridge

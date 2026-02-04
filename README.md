@@ -58,6 +58,22 @@ GET /
 ```
 返回 API 说明文档，包含所有可用端点的使用方法。
 
+### 健康检查
+```
+GET /health
+```
+
+**响应示例：**
+```json
+{
+  "status": "healthy",
+  "timestamp": "2026-02-04T10:30:45.123Z",
+  "uptime": 1234.567
+}
+```
+
+用于监控和负载均衡器集成。
+
 ### 网站可用性检测
 ```
 GET /uptime?url=<url>
@@ -109,6 +125,8 @@ GET /favicon?url=<url>
 
 ## Docker 使用
 
+### 直接使用 docker run
+
 ```bash
 # 构建镜像
 docker build -t myapi .
@@ -118,6 +136,96 @@ docker run -p 3000:3000 myapi
 
 # 使用自定义端口和超时时间
 docker run -p 8080:3000 -e PORT=8080 -e TIMEOUT=5000 myapi
+```
+
+### 使用 Docker Compose（推荐）
+
+#### 基础部署
+
+```bash
+# 启动服务
+docker-compose up -d
+
+# 查看日志
+docker-compose logs -f myapi
+
+# 停止服务
+docker-compose down
+```
+
+#### Docker Compose 配置详解
+
+`docker-compose.yml` 包含以下配置：
+
+```yaml
+services:
+  myapi:
+    image: ghcr.io/lvcdy/myapi:latest
+    container_name: myapi
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - TIMEOUT=8000
+    volumes:
+      - myapi-logs:/app/logs
+    networks:
+      - myapi-network
+
+volumes:
+  myapi-logs:
+    driver: local
+
+networks:
+  myapi-network:
+    driver: bridge
+```
+
+**配置说明：**
+- `image` - 使用 GitHub Container Registry 的预构建镜像
+- `container_name` - 容器名称
+- `restart: always` - 容器异常退出时自动重启
+- `ports` - 端口映射（主机:容器）
+- `environment` - 环境变量配置
+- `volumes` - 数据卷挂载（用于持久化日志）
+- `networks` - 容器网络隔离
+
+#### 本地开发版本
+
+如果需要本地构建和测试，使用以下配置：
+
+```yaml
+services:
+  myapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # ... 其他配置相同
+```
+
+**配置说明：**
+- `build` - 从本地 Dockerfile 构建镜像
+- `ports` - 端口映射（主机:容器）
+- `environment` - 环境变量配置
+- `restart: unless-stopped` - 自动重启策略
+- `networks` - 容器网络配置
+
+#### 自定义部署
+
+如需修改配置，编辑 `docker-compose.yml`：
+
+```yaml
+environment:
+  - PORT=8080           # 修改服务端口
+  - TIMEOUT=5000        # 修改请求超时时间
+```
+
+然后重启服务：
+
+```bash
+docker-compose down
+docker-compose up -d
 ```
 
 ## 请求示例
