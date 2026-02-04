@@ -3,6 +3,7 @@ name: Build and Push Docker Image
 on:
   push:
     branches: ["main"]
+    tags: ["v*"]
 
 jobs:
   build-and-push:
@@ -25,11 +26,33 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Extract version from package.json
+        id: pkg
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/myapi
+          tags: |
+            # 始终生成 latest 标签（仅在 main 分支）
+            type=raw,value=latest,enable={{is_default_branch}}
+            # 从 package.json 读取版本号
+            type=raw,value=${{ steps.pkg.outputs.version }},enable={{is_default_branch}}
+            # 如果是 git tag 推送，使用 tag 名称
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            # 短 SHA 作为备用标签
+            type=sha,prefix=
+
       - name: Build and Push
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/myapi:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

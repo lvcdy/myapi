@@ -36,6 +36,5 @@ export function validateConfig(config) {
 export function printConfig(config) {
     console.log('\n📋 应用配置:')
     console.log(`  PORT: ${config.PORT}`)
-    console.log(`  TIMEOUT: ${config.TIMEOUT}ms`)
-    console.log(`  FAVICON_SIZE: ${config.FAVICON_SIZE}px\n`)
+    console.log(`  TIMEOUT: ${config.TIMEOUT}ms\n`)
 }
