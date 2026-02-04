@@ -8,6 +8,7 @@ import { createLogger } from './middleware/logger.js'
 import { handleUptime } from './handlers/uptimeHandler.js'
 import { handleFavicon } from './handlers/faviconHandler.js'
 import { handleHealth } from './handlers/healthHandler.js'
+import { handleHitokoto, handleHitokotoTypes } from './handlers/hitokotoHandler.js'
 import { getHomepageHtml } from './views/homepage.js'
 
 export function createApp() {
@@ -34,6 +35,10 @@ export function createApp() {
 
     // 路由：网站图标获取
     app.get('/favicon', handleFavicon)
+
+    // 路由：一言
+    app.get('/hitokoto', handleHitokoto)
+    app.get('/hitokoto/types', handleHitokotoTypes)
 
     // 404 处理
     app.notFound((c) => {

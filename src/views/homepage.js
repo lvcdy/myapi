@@ -31,8 +31,18 @@ export function getHomepageHtml() {
                     <p class="text-sm text-slate-500 mb-3">自动提取目标网站的 Favicon。</p>
                     <code class="block bg-slate-100 p-3 rounded text-sm text-indigo-700">/favicon?url=https://github.com</code>
                 </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h2 class="font-bold text-lg mb-2">💬 一言</h2>
+                    <p class="text-sm text-slate-500 mb-3">随机返回一句话，数据来源于 <a href="https://github.com/hitokoto-osc/sentences-bundle" class="text-indigo-500 hover:underline">hitokoto-osc/sentences-bundle</a>。</p>
+                    <code class="block bg-slate-100 p-3 rounded text-sm text-indigo-700 mb-2">/hitokoto</code>
+                    <p class="text-xs text-slate-400">参数: c=类型, encode=格式(json/text/js)</p>
+                    <p class="text-xs text-slate-400 mt-1">类型: a动画 b漫画 c游戏 d文学 e原创 f网络 g其他 h影视 i诗词 j网易云 k哲学 l抖机灵</p>
+                </div>
             </div>
-            <footer class="mt-12 text-slate-400 text-xs">Powered by Hono & Docker</footer>
+            <footer class="mt-12 text-slate-400 text-xs">
+                Powered by Hono & Docker | 一言数据来源: <a href="https://hitokoto.cn" class="hover:text-slate-600">hitokoto.cn</a>
+            </footer>
         </div>
     </body>
     </html>`

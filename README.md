@@ -6,6 +6,7 @@
 
 - **网站可用性检测** - 检查目标网站在线状态及响应延迟
 - **网站图标获取** - 自动提取网站的 Favicon
+- **一言 API** - 随机返回一句话，数据来源于 [hitokoto-osc/sentences-bundle](https://github.com/hitokoto-osc/sentences-bundle)
 - **跨域支持** - 已启用 CORS，支持跨域请求
 - **灵活配置** - 支持通过环境变量自定义端口和超时时间
 - **详细错误处理** - 区分不同类型的请求失败原因
@@ -119,9 +120,69 @@ GET /favicon?url=<url>
 - `url` (必须) - 目标网站 URL，需包含协议（http/https）
 
 **功能：**
-- 自动提取网站域名并通过 Google Favicon API 获取图标
-- 返回 128×128 像素的 PNG 图标
-- 若 URL 格式错误则返回 400 错误
+- 自动解析网站 HTML 提取 favicon 链接
+- 回退到默认的 `/favicon.ico` 路径
+- 直接返回图片二进制数据
+
+### 一言
+```
+GET /hitokoto
+```
+
+API 兼容 [hitokoto.cn 官方接口](https://developer.hitokoto.cn/sentence/)。
+
+**请求参数：**
+| 参数 | 示例 | 说明 |
+|-----|------|------|
+| c | `?c=a` 或 `?c=a&c=c` | 句子类型，支持多个 |
+| encode | `json` / `text` / `js` | 返回编码格式 |
+| callback | `?callback=myfunc` | JSONP 回调函数名 |
+| select | `?select=.hitokoto` | JS 选择器（配合 `encode=js`） |
+| min_length | `?min_length=10` | 句子最小长度 |
+| max_length | `?max_length=30` | 句子最大长度 |
+
+**句子类型：**
+| 代码 | 类型 | 代码 | 类型 |
+|-----|------|-----|------|
+| a | 动画 | g | 其他 |
+| b | 漫画 | h | 影视 |
+| c | 游戏 | i | 诗词 |
+| d | 文学 | j | 网易云 |
+| e | 原创 | k | 哲学 |
+| f | 网络 | l | 抖机灵 |
+
+**返回编码：**
+| encode | 说明 |
+|--------|------|
+| json | 返回 JSON 格式（默认） |
+| text | 返回纯文本 |
+| js | 返回 JavaScript，配合 `callback` 为 JSONP，配合 `select` 为 DOM 操作 |
+
+**响应示例：**
+```json
+{
+  "id": 1,
+  "uuid": "9818ecda-9cbf-4f2a-9af8-8136ef39cfcd",
+  "hitokoto": "与众不同的生活方式很累人呢，因为找不到借口。",
+  "type": "a",
+  "from": "幸运星",
+  "from_who": null,
+  "creator": "跳舞的果果",
+  "creator_uid": 0,
+  "reviewer": 0,
+  "commit_from": "web",
+  "created_at": "1468605909",
+  "length": 22
+}
+```
+
+**获取类型统计：**
+```
+GET /hitokoto/types
+```
+
+**数据来源：**
+一言句子包来自 [hitokoto-osc/sentences-bundle](https://github.com/hitokoto-osc/sentences-bundle)，感谢 [hitokoto.cn](https://hitokoto.cn) 提供数据。
 
 ## Docker 使用
 
