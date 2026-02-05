@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/lvcdy/myapi/compare/v1.0.0...v1.1.0) (2026-02-05)
+
+
+### Features
+
+* add deployment report and enhance application structure ([5912e65](https://github.com/lvcdy/myapi/commit/5912e65ab41a51f92eeb514c392bdbc1349a2edb))
+
 # 1.0.0 (2026-02-05)
 
 
