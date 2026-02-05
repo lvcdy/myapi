@@ -36,13 +36,9 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository_owner }}/myapi
           tags: |
-            # 始终生成 latest 标签（仅在 main 分支）
             type=raw,value=latest,enable={{is_default_branch}}
-            # 从 package.json 读取版本号
             type=raw,value=${{ steps.pkg.outputs.version }},enable={{is_default_branch}}
-            # 从 release-v* tag 提取版本号
             type=match,pattern=release-v(.+),group=1
-            # 短 SHA 作为备用标签
             type=sha,prefix=
 
       - name: Build and Push

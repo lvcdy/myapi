@@ -1,9 +1,8 @@
 # MyAPI Dockerfile - 版本 1.0.1
 # 优化版Dockerfile - 减小镜像大小
-# 使用更精简的基础镜像和优化的构建流程
 
-# 第一阶段：依赖构建（使用更小的基础镜像）
-FROM registry.aliyuncs.com/aliyun/node:20-alpine AS builder
+# 第一阶段：依赖构建
+FROM node:20-alpine AS builder
 
 # 启用 corepack 并准备 pnpm
 RUN corepack enable && \
@@ -16,23 +15,10 @@ COPY package.json pnpm-lock.yaml ./
 
 # 只安装生产依赖
 RUN pnpm install --prod --frozen-lockfile --ignore-scripts && \
-    pnpm store prune && \
-    rm -rf /root/.local/share/pnpm && \
-    npm cache clean --force
+    pnpm store prune
 
-# 第二阶段：数据处理
-FROM registry.aliyuncs.com/aliyun/alpine:3.18 AS data-processor
-
-# 安装必要工具
-RUN apk add --no-cache tar gzip
-
-WORKDIR /data
-COPY src/data/sentences.tar.gz ./
-# 解压数据文件
-RUN tar -xzf sentences.tar.gz && rm sentences.tar.gz
-
-# 第三阶段：最终运行时（使用标准Node.js Alpine镜像）
-FROM registry.aliyuncs.com/aliyun/node:20-alpine
+# 第二阶段：最终运行时
+FROM node:20-alpine
 
 # 设置环境变量
 ENV NODE_ENV=production
@@ -43,7 +29,6 @@ WORKDIR /app
 # 从构建阶段复制优化后的依赖
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
-COPY --from=data-processor /data/src/data/sentences ./src/data/sentences
 
 # 复制应用源代码
 COPY index.js ./index.js
@@ -57,6 +42,10 @@ EXPOSE 3000
 # 标签镜像版本
 LABEL version="1.0.1"
 LABEL maintainer="myapi"
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
 
 # 启动应用
 CMD ["node", "index.js"]
