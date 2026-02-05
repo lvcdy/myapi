@@ -51,7 +51,16 @@ export function handleHitokoto(c) {
     })
 
     if (!item) {
-        return c.json({ error: 'no data available' }, 503)
+        return c.json({
+            error: 'no data available',
+            message: '无法找到符合条件的句子',
+            parameters: {
+                types: validTypes.length > 0 ? validTypes : '全部',
+                minLength,
+                maxLength: isNaN(maxLength) ? '无限制' : maxLength
+            },
+            hint: '请检查参数是否过于严格（如 min_length/max_length），或类型参数是否正确'
+        }, 503)
     }
 
     // 根据编码格式返回
