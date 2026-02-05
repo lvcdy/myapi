@@ -1,58 +1,24 @@
 /**
- * 应用主模块 - 路由和中间件配置
+ * 应用主模块 - Hono 应用工厂
  */
 
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { createLogger } from './middleware/logger.js'
-import { handleUptime } from './handlers/uptimeHandler.js'
-import { handleFavicon } from './handlers/faviconHandler.js'
-import { handleHealth } from './handlers/healthHandler.js'
-import { handleHitokoto, handleHitokotoTypes } from './handlers/hitokotoHandler.js'
-import { getHomepageHtml } from './views/homepage.js'
+import { createRequestCounter } from './middleware/requestCounter.js'
+import { registerRoutes } from './routes/index.js'
+import { CORS_CONFIG } from './constants/index.js'
 
 export function createApp() {
     const app = new Hono()
 
-    // 中间件：请求日志
+    // 注册所有中间件
+    app.use(createRequestCounter())
     app.use(createLogger())
+    app.use(cors(CORS_CONFIG))
 
-    // 中间件：CORS
-    app.use(cors({
-        origin: '*',
-        allowMethods: ['GET', 'HEAD', 'OPTIONS'],
-        allowHeaders: ['Content-Type']
-    }))
-
-    // 路由：主页
-    app.get('/', (c) => c.html(getHomepageHtml()))
-
-    // 路由：健康检查
-    app.get('/health', handleHealth)
-
-    // 路由：网站可用性检测
-    app.get('/uptime', handleUptime)
-
-    // 路由：网站图标获取
-    app.get('/favicon', handleFavicon)
-
-    // 路由：一言
-    app.get('/hitokoto', handleHitokoto)
-    app.get('/hitokoto/types', handleHitokotoTypes)
-
-    // 404 处理
-    app.notFound((c) => {
-        return c.json({ error: 'Not Found' }, 404)
-    })
-
-    // 错误处理
-    app.onError((err, c) => {
-        console.error('❌ 应用错误:', err.message)
-        return c.json({
-            error: 'Internal Server Error',
-            message: err.message
-        }, 500)
-    })
+    // 注册所有路由
+    registerRoutes(app)
 
     return app
 }

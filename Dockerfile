@@ -7,44 +7,36 @@ FROM node:20-alpine AS builder
 
 # 启用 corepack 并准备 pnpm
 RUN corepack enable && \
-    corepack prepare pnpm@latest --activate && \
-    # 清理apk缓存
-    rm -rf /var/cache/apk/*
+    corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 
 # 复制依赖声明文件
 COPY package.json pnpm-lock.yaml ./
 
-# 只安装生产依赖，跳过脚本执行，使用更多优化选项
-RUN pnpm install --prod --frozen-lockfile --ignore-scripts \
-    --no-optional \
-    --prefer-offline \
-    && pnpm store prune \
-    # 清理pnpm缓存和临时文件
-    && rm -rf /root/.local/share/pnpm \
-    && npm cache clean --force
+# 只安装生产依赖
+RUN pnpm install --prod --frozen-lockfile --ignore-scripts && \
+    pnpm store prune && \
+    rm -rf /root/.local/share/pnpm && \
+    npm cache clean --force
 
-# 第二阶段：数据处理（合并到同一阶段减少层数）
+# 第二阶段：数据处理
 FROM alpine:3.18 AS data-processor
 
-# 安装必要工具并立即清理缓存
-RUN apk add --no-cache tar gzip \
-    && rm -rf /var/cache/apk/*
+# 安装必要工具
+RUN apk add --no-cache tar gzip
 
 WORKDIR /data
 COPY src/data/sentences.tar.gz ./
-# 解压后立即删除压缩文件
-RUN tar -xzf sentences.tar.gz \
-    && rm sentences.tar.gz
+# 解压数据文件
+RUN tar -xzf sentences.tar.gz && rm sentences.tar.gz
 
 # 第三阶段：最终运行时（使用标准Node.js Alpine镜像）
 FROM node:20-alpine
 
 # 设置环境变量
-ENV NODE_ENV=production \
-    # 减少Node.js内存使用
-    NODE_OPTIONS="--max-old-space-size=128"
+ENV NODE_ENV=production
+ENV NODE_OPTIONS="--max-old-space-size=128"
 
 WORKDIR /app
 

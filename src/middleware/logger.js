@@ -2,6 +2,8 @@
  * 日志中间件
  */
 
+import { log } from '../utils/response.js'
+
 /**
  * 创建请求日志中间件
  * @returns {Function} 中间件函数
@@ -17,10 +19,11 @@ export function createLogger() {
             await next()
             const duration = Date.now() - start
             const status = c.res.status
-            console.log(`[${new Date().toISOString()}] ${method} ${path}${query} ${status} ${duration}ms`)
+            const statusEmoji = status >= 200 && status < 300 ? '✅' : status >= 400 ? '⚠️' : '📌'
+            log('INFO', `${statusEmoji} ${method} ${path}${query} [${status}] ${duration}ms`)
         } catch (err) {
             const duration = Date.now() - start
-            console.error(`[${new Date().toISOString()}] ${method} ${path}${query} ERROR ${duration}ms`, err.message)
+            log('ERROR', `${method} ${path}${query} [ERROR] ${duration}ms - ${err.message}`)
             throw err
         }
     }
