@@ -26,19 +26,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Log in to Aliyun Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: registry.cn-beijing.aliyuncs.com
-          username: ${{ secrets.ALIYUN_USERNAME }}
-          password: ${{ secrets.ALIYUN_PASSWORD }}
-
       - name: Extract version from package.json
         id: pkg
         run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
 
-      - name: Docker meta for GHCR
-        id: meta-ghcr
+      - name: Docker meta
+        id: meta
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository_owner }}/myapi
@@ -52,29 +45,12 @@ jobs:
             # 短 SHA 作为备用标签
             type=sha,prefix=
 
-      - name: Docker meta for Aliyun
-        id: meta-aliyun
-        uses: docker/metadata-action@v5
-        with:
-          images: registry.cn-beijing.aliyuncs.com/lvcdyz/myapi
-          tags: |
-            # 始终生成 latest 标签（仅在 main 分支）
-            type=raw,value=latest,enable={{is_default_branch}}
-            # 从 package.json 读取版本号
-            type=raw,value=${{ steps.pkg.outputs.version }},enable={{is_default_branch}}
-            # 从 release-v* tag 提取版本号
-            type=match,pattern=release-v(.+),group=1
-            # 短 SHA 作为备用标签
-            type=sha,prefix=
-
-      - name: Build and Push to GHCR and Aliyun
+      - name: Build and Push
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: |
-            ${{ steps.meta-ghcr.outputs.tags }}
-            ${{ steps.meta-aliyun.outputs.tags }}
-          labels: ${{ steps.meta-ghcr.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
