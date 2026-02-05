@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/lvcdy/myapi/compare/v1.1.1...v1.2.0) (2026-02-05)
+
+
+### Features
+
+* 更新 Node.js 版本至 20，并优化健康检查命令 ([4032411](https://github.com/lvcdy/myapi/commit/403241156a234555f6512d02fe6d347d8efee6a9))
+
 ## [1.1.1](https://github.com/lvcdy/myapi/compare/v1.1.0...v1.1.1) (2026-02-05)
 
 
