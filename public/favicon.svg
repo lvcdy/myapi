@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- 背景 -->
+  <rect width="256" height="256" fill="url(#grad1)" rx="0"/>
+  
+  <!-- 外边框圆 -->
+  <circle cx="128" cy="128" r="110" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="3"/>
+  
+  <!-- 引号装饰 -->
+  <g fill="rgba(255,255,255,0.3)">
+    <!-- 左引号 -->
+    <path d="M 60 90 Q 55 85 55 95 Q 55 110 70 110 Q 65 100 65 90 Q 65 80 60 75 Z"/>
+    <!-- 右引号 -->
+    <path d="M 190 90 Q 185 85 185 95 Q 185 110 200 110 Q 195 100 195 90 Q 195 80 190 75 Z"/>
+  </g>
+  
+  <!-- 中心文字 "Y" (代表 Yes/一言) -->
+  <g fill="#ffffff" font-family="Arial, sans-serif" font-weight="700">
+    <!-- 主体文字 -->
+    <text x="128" y="165" font-size="120" text-anchor="middle" font-weight="bold" fill="white">Y</text>
+    
+    <!-- 下标 API -->
+    <text x="170" y="175" font-size="28" text-anchor="start" font-weight="600" opacity="0.9">API</text>
+  </g>
+  
+  <!-- 装饰点 -->
+  <circle cx="85" cy="140" r="4" fill="rgba(255,255,255,0.5)"/>
+  <circle cx="171" cy="140" r="4" fill="rgba(255,255,255,0.5)"/>
+  
+  <!-- 底部装饰线 -->
+  <line x1="70" y1="195" x2="186" y2="195" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+</svg>

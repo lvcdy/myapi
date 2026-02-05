@@ -3,6 +3,7 @@
  */
 
 import { log } from '../utils/response.js'
+import { getRequestId } from './requestId.js'
 
 /**
  * 创建请求日志中间件
@@ -14,16 +15,17 @@ export function createLogger() {
         const method = c.req.method
         const path = c.req.path
         const query = c.req.query('url') ? `?url=${encodeURIComponent(c.req.query('url'))}` : ''
+        const requestId = getRequestId(c)
 
         try {
             await next()
             const duration = Date.now() - start
             const status = c.res.status
             const statusEmoji = status >= 200 && status < 300 ? '✅' : status >= 400 ? '⚠️' : '📌'
-            log('INFO', `${statusEmoji} ${method} ${path}${query} [${status}] ${duration}ms`)
+            log('INFO', `[${requestId}] ${statusEmoji} ${method} ${path}${query} [${status}] ${duration}ms`)
         } catch (err) {
             const duration = Date.now() - start
-            log('ERROR', `${method} ${path}${query} [ERROR] ${duration}ms - ${err.message}`)
+            log('ERROR', `[${requestId}] ${method} ${path}${query} [ERROR] ${duration}ms - ${err.message}`)
             throw err
         }
     }

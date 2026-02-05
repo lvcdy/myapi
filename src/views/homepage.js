@@ -10,6 +10,14 @@ export function getHomepageHtml() {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Web Tools API - 一言、网站可用性检测、网站图标获取工具集">
+    <meta name="theme-color" content="#6366f1">
+    
+    <!-- Favicon 图标 -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    
     <title>Web Tools API - 现代化网站工具箱</title>
     <script src="https://cdn.tailwindcss.com"><\/script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
