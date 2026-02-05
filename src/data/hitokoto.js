@@ -89,6 +89,10 @@ export function ensureLoaded() {
 export function getRandomHitokoto(options = {}) {
     const { types, minLength = 0, maxLength = Infinity } = options
 
+    // 防御性编程：确保 maxLength 是有效的数字
+    const validMaxLength = (maxLength === null || isNaN(maxLength)) ? Infinity : maxLength
+    const validMinLength = isNaN(minLength) ? 0 : minLength
+
     let candidates = []
 
     // 处理类型筛选
@@ -104,10 +108,10 @@ export function getRandomHitokoto(options = {}) {
     }
 
     // 应用长度筛选
-    if (minLength > 0 || maxLength < Infinity) {
+    if (validMinLength > 0 || validMaxLength < Infinity) {
         candidates = candidates.filter(item => {
             const len = item.length || item.hitokoto?.length || 0
-            return len >= minLength && len <= maxLength
+            return len >= validMinLength && len <= validMaxLength
         })
     }
 

@@ -43,11 +43,14 @@ export function handleHitokoto(c) {
     // 过滤有效类型
     const validTypes = types.filter(t => hitokotoTypes[t])
 
+    // 归一化 maxLength（如果是 NaN 或其他非法值，设为 Infinity）
+    const normalizedMaxLength = isNaN(maxLength) || maxLength === null ? Infinity : maxLength
+
     // 获取随机一言
     const item = getRandomHitokoto({
         types: validTypes.length > 0 ? validTypes : null,
         minLength,
-        maxLength: isNaN(maxLength) ? Infinity : maxLength
+        maxLength: normalizedMaxLength
     })
 
     if (!item) {
@@ -57,7 +60,7 @@ export function handleHitokoto(c) {
             parameters: {
                 types: validTypes.length > 0 ? validTypes : '全部',
                 minLength,
-                maxLength: isNaN(maxLength) ? '无限制' : maxLength
+                maxLength: normalizedMaxLength === Infinity ? '无限制' : normalizedMaxLength
             },
             hint: '请检查参数是否过于严格（如 min_length/max_length），或类型参数是否正确'
         }, 503)
