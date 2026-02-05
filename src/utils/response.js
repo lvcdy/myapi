@@ -2,7 +2,7 @@
  * 响应工具 - 统一响应格式
  */
 
-import { LOG_LEVELS, ERROR_CODE_MAP, RESPONSE_MESSAGES } from '../constants/index.js'
+import { ERROR_CODE_MAP } from '../constants/index.js'
 
 /**
  * 构建成功响应
@@ -40,7 +40,7 @@ export function errorResponse(error, code = 500) {
  * @returns {Object} 响应对象
  */
 export function mapErrorResponse(error, context = {}) {
-    const { code: errorCode, message: defaultMessage } = error
+    const { code: errorCode } = error
 
     // 检查错误码映射
     if (errorCode && ERROR_CODE_MAP[errorCode]) {
@@ -61,22 +61,7 @@ export function mapErrorResponse(error, context = {}) {
 
     // 默认错误
     return {
-        ...errorResponse(error.message || defaultMessage, 500),
+        ...errorResponse(error.message, 500),
         ...context
-    }
-}
-
-/**
- * 打印日志
- * @param {string} level - 日志级别
- * @param {string} message - 消息
- * @param {any} data - 附加数据
- */
-export function log(level, message, data = null) {
-    const icon = LOG_LEVELS[level] || '📌'
-    if (data) {
-        console.log(`${icon} ${message}`, data)
-    } else {
-        console.log(`${icon} ${message}`)
     }
 }

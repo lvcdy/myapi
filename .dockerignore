@@ -1,40 +1,48 @@
-# Git 相关
+# Version control
 .git
 .gitignore
 .gitattributes
+.github
+.gitpod.yml
 
-# 开发工具
+# Development
 .vscode
 .idea
 *.swp
 *.swo
 *~
 .DS_Store
+Thumbs.db
 
-# 包管理器
+# Package managers
 node_modules
-npm-debug.log
-pnpm-debug.log
+npm-debug.log*
+pnpm-debug.log*
 yarn-error.log
 
-# 构建输出
+# Build & Cache
 dist
 build
 .next
 out
+.cache
+.vite
+.turbo
 
-# 测试
+# Testing
 coverage
 .nyc_output
 *.lcov
+__tests__
+vitest.config.js
 
-# 文档
+# Documentation
 README.md
 LICENSE
 CHANGELOG.md
-docs
+docs/
+public/
 
-# GitHub
-.github
-.gitpod.yml
-
+# Environment
+.env.local
+*.pid

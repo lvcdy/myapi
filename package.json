@@ -2,14 +2,10 @@
   "name": "myapi",
   "type": "module",
   "version": "1.3.3",
+  "description": "Lightweight API server",
   "scripts": {
     "start": "node index.js",
-    "dev": "node --watch index.js",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage",
-    "release": "semantic-release"
+    "dev": "node --watch index.js"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.9",

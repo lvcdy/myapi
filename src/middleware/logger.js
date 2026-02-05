@@ -1,9 +1,6 @@
 /**
- * 日志中间件
+ * 日志中间件 - 轻量级版本
  */
-
-import { log } from '../utils/response.js'
-import { getRequestId } from './requestId.js'
 
 /**
  * 创建请求日志中间件
@@ -12,21 +9,12 @@ import { getRequestId } from './requestId.js'
 export function createLogger() {
     return async (c, next) => {
         const start = Date.now()
-        const method = c.req.method
-        const path = c.req.path
-        const query = c.req.query('url') ? `?url=${encodeURIComponent(c.req.query('url'))}` : ''
-        const requestId = getRequestId(c)
+        await next()
 
-        try {
-            await next()
+        // 仅在生产环境的错误状态下记录
+        if (process.env.NODE_ENV === 'production' && c.res.status >= 400) {
             const duration = Date.now() - start
-            const status = c.res.status
-            const statusEmoji = status >= 200 && status < 300 ? '✅' : status >= 400 ? '⚠️' : '📌'
-            log('INFO', `[${requestId}] ${statusEmoji} ${method} ${path}${query} [${status}] ${duration}ms`)
-        } catch (err) {
-            const duration = Date.now() - start
-            log('ERROR', `[${requestId}] ${method} ${path}${query} [ERROR] ${duration}ms - ${err.message}`)
-            throw err
+            console.error(`${c.req.method} ${c.req.path} [${c.res.status}] ${duration}ms`)
         }
     }
 }
