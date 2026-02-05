@@ -257,20 +257,36 @@ export function getHomepageHtml() {
             // 加载背景图片
             async function loadBackground() {
                 try {
-                    const response = await fetch(BACKGROUND_API);
-                    if (response.ok) {
-                        const imageUrl = response.url;
-                        if (imageUrl !== currentBackground) {
-                            document.body.style.backgroundImage = 'url("' + imageUrl + '")';
-                            currentBackground = imageUrl;
-                            
-                            // 显示背景信息
-                            const bgInfo = document.getElementById('background-info');
-                            const bgSource = document.getElementById('bg-source');
-                            bgSource.textContent = '背景来源: ' + (imageUrl.split('/').pop() || 't.alcy.cc');
-                            bgInfo.classList.remove('hidden');
+                    // 使用XMLHttpRequest处理重定向
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('GET', BACKGROUND_API, true);
+                    xhr.responseType = 'blob';
+                    
+                    xhr.onload = function() {
+                        if (xhr.status === 200) {
+                            const imageUrl = URL.createObjectURL(xhr.response);
+                            if (imageUrl !== currentBackground) {
+                                document.body.style.backgroundImage = 'url("' + imageUrl + '")';
+                                // 清理旧的URL对象
+                                if (currentBackground) {
+                                    URL.revokeObjectURL(currentBackground);
+                                }
+                                currentBackground = imageUrl;
+                                
+                                // 显示背景信息
+                                const bgInfo = document.getElementById('background-info');
+                                const bgSource = document.getElementById('bg-source');
+                                bgSource.textContent = '背景来源: t.alcy.cc 随机图片';
+                                bgInfo.classList.remove('hidden');
+                            }
                         }
-                    }
+                    };
+                    
+                    xhr.onerror = function() {
+                        console.warn('背景图片加载失败');
+                    };
+                    
+                    xhr.send();
                 } catch (error) {
                     console.warn('背景图片加载失败:', error);
                 }
