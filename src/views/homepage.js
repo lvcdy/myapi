@@ -13,7 +13,19 @@ export function getHomepageHtml() {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Web Tools API - 网站工具箱</title>
         <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
         <style>
+            body {
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+                background-size: cover;
+                background-position: center;
+                background-attachment: fixed;
+                background-repeat: no-repeat;
+                transition: background-image 1s ease-in-out;
+            }
+            code {
+                font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+            }
             @keyframes fadeInUp {
                 from {
                     opacity: 0;
@@ -32,8 +44,14 @@ export function getHomepageHtml() {
                 box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
                 transition: all 0.3s ease;
             }
-            .gradient-bg {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            .gradient-bg-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(135deg, rgba(102, 126, 234, 0.85) 0%, rgba(118, 75, 162, 0.85) 100%);
+                z-index: -1;
             }
             .code-block {
                 position: relative;
@@ -56,9 +74,31 @@ export function getHomepageHtml() {
                 0%, 100% { opacity: 1; }
                 50% { opacity: .5; }
             }
+            .background-info {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: rgba(255, 255, 255, 0.9);
+                backdrop-filter: blur(10px);
+                padding: 8px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                color: #6b7280;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                z-index: 1000;
+                opacity: 0.7;
+                transition: opacity 0.3s ease;
+            }
+            .background-info:hover {
+                opacity: 1;
+            }
         </style>
     </head>
-    <body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen gradient-bg">
+    <body class="min-h-screen bg-gray-900">
+        <div class="gradient-bg-overlay"></div>
+        <div id="background-info" class="background-info hidden">
+            <span id="bg-source">背景来源: t.alcy.cc</span>
+        </div>
         <!-- Header -->
         <header class="py-12 px-4 text-center animate-fade-in-up">
             <div class="max-w-4xl mx-auto">
@@ -210,6 +250,38 @@ export function getHomepageHtml() {
         </footer>
 
         <script>
+            // 背景图片API配置
+            const BACKGROUND_API = 'https://t.alcy.cc/ycy';
+            let currentBackground = '';
+            
+            // 加载背景图片
+            async function loadBackground() {
+                try {
+                    const response = await fetch(BACKGROUND_API);
+                    if (response.ok) {
+                        const imageUrl = response.url;
+                        if (imageUrl !== currentBackground) {
+                            document.body.style.backgroundImage = 'url("' + imageUrl + '")';
+                            currentBackground = imageUrl;
+                            
+                            // 显示背景信息
+                            const bgInfo = document.getElementById('background-info');
+                            const bgSource = document.getElementById('bg-source');
+                            bgSource.textContent = '背景来源: ' + (imageUrl.split('/').pop() || 't.alcy.cc');
+                            bgInfo.classList.remove('hidden');
+                        }
+                    }
+                } catch (error) {
+                    console.warn('背景图片加载失败:', error);
+                }
+            }
+            
+            // 定期更新背景（每5分钟）
+            function startBackgroundRotation() {
+                loadBackground();
+                setInterval(loadBackground, 5 * 60 * 1000); // 5分钟
+            }
+            
             function copyToClipboard(text) {
                 navigator.clipboard.writeText(text).then(() => {
                     // 简单的视觉反馈
@@ -223,6 +295,9 @@ export function getHomepageHtml() {
 
             // 添加滚动动画
             document.addEventListener('DOMContentLoaded', function() {
+                // 启动背景轮播
+                startBackgroundRotation();
+                
                 const observerOptions = {
                     threshold: 0.1,
                     rootMargin: '0px 0px -50px 0px'
