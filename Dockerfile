@@ -4,9 +4,8 @@
 # 第一阶段：依赖构建
 FROM node:25-alpine AS builder
 
-# 启用 corepack 并准备 pnpm
-RUN corepack enable && \
-    corepack prepare pnpm@latest --activate
+# 安装 pnpm
+RUN npm install -g pnpm
 
 WORKDIR /app
 
