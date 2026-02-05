@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/lvcdy/myapi/compare/v1.1.0...v1.1.1) (2026-02-05)
+
+
+### Bug Fixes
+
+* 更新基础镜像为阿里云镜像以优化构建流程 ([a698c00](https://github.com/lvcdy/myapi/commit/a698c008444bf358d25138d69e0bc8dfd6863fed))
+
 # [1.1.0](https://github.com/lvcdy/myapi/compare/v1.0.0...v1.1.0) (2026-02-05)
 
 
