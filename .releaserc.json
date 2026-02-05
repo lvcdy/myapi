@@ -1,0 +1,81 @@
+{
+    "presetConfig": {
+        "types": [
+            {
+                "type": "feat",
+                "section": "✨ 功能",
+                "hidden": false
+            },
+            {
+                "type": "fix",
+                "section": "🐛 修复",
+                "hidden": false
+            },
+            {
+                "type": "docs",
+                "section": "📝 文档",
+                "hidden": false
+            },
+            {
+                "type": "style",
+                "section": "💄 样式",
+                "hidden": false
+            },
+            {
+                "type": "refactor",
+                "section": "♻️ 重构",
+                "hidden": false
+            },
+            {
+                "type": "perf",
+                "section": "⚡ 性能",
+                "hidden": false
+            },
+            {
+                "type": "test",
+                "section": "✅ 测试",
+                "hidden": true
+            },
+            {
+                "type": "chore",
+                "section": "🔨 构建",
+                "hidden": true
+            }
+        ]
+    },
+    "branches": [
+        "main",
+        {
+            "name": "dev",
+            "prerelease": true
+        }
+    ],
+    "plugins": [
+        "@semantic-release/commit-analyzer",
+        "@semantic-release/release-notes-generator",
+        [
+            "@semantic-release/changelog",
+            {
+                "changelogFile": "CHANGELOG.md"
+            }
+        ],
+        [
+            "@semantic-release/npm",
+            {
+                "npmPublish": false
+            }
+        ],
+        [
+            "@semantic-release/git",
+            {
+                "assets": [
+                    "package.json",
+                    "pnpm-lock.yaml",
+                    "CHANGELOG.md"
+                ],
+                "message": "chore(release): v${nextRelease.version} [skip ci]"
+            }
+        ],
+        "@semantic-release/github"
+    ]
+}
