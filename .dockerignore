@@ -38,6 +38,3 @@ docs
 .github
 .gitpod.yml
 
-# 数据目录（使用压缩后的文件）
-src/data/sentences/
-
