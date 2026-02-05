@@ -1,3 +1,4 @@
+# MyAPI Dockerfile - 版本 1.0.1
 # 优化版Dockerfile - 减小镜像大小
 # 使用更精简的基础镜像和优化的构建流程
 
@@ -60,6 +61,10 @@ COPY src ./src/
 RUN mkdir -p /app/logs
 
 EXPOSE 3000
+
+# 标签镜像版本
+LABEL version="1.0.1"
+LABEL maintainer="myapi"
 
 # 启动应用
 CMD ["node", "index.js"]

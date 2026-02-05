@@ -1,331 +1,105 @@
-# 🛠️ Web Tools API
+# MyAPI - Web Tools API
 
-自托管的简易网站工具箱，已封装为 Docker 镜像。
+一个自托管的现代化网站工具箱，提供网站检测、图标获取、一言等实用功能。
 
-## 功能特性
+## 🚀 功能特性
 
-- **网站可用性检测** - 检查目标网站在线状态及响应延迟
-- **网站图标获取** - 自动提取网站的 Favicon
-- **一言 API** - 随机返回一句话，数据来源于 [hitokoto-osc/sentences-bundle](https://github.com/hitokoto-osc/sentences-bundle)
-- **跨域支持** - 已启用 CORS，支持跨域请求
-- **灵活配置** - 支持通过环境变量自定义端口和超时时间
-- **详细错误处理** - 区分不同类型的请求失败原因
+- **网站可用性检测** - 实时监测网站在线状态和响应时间
+- **网站图标获取** - 智能提取网站Favicon图标  
+- **一言API** - 随机语录，支持12种内容类型
+- **健康检查** - 服务状态监控
+- **CORS支持** - 跨域资源共享
+- **Docker就绪** - 容器化部署支持
 
-## 快速开始
+## 📦 技术栈
 
-### 环境要求
-- Node.js >= 18.0.0
-- npm 或 pnpm
+- **Node.js** (>=18.0.0)
+- **Hono** - 高性能Web框架
+- **Axios** - HTTP客户端
+- **ES Modules** - 现代JavaScript模块系统
+- **Docker** - 容器化部署
 
-### 安装依赖
+## 🔧 快速开始
+
+### 本地开发
 
 ```bash
-npm install
-# 或使用 pnpm
+# 安装依赖
 pnpm install
+
+# 启动开发服务器
+pnpm dev
+
+# 生产模式启动
+pnpm start
 ```
 
-### 开发模式
+### Docker部署
 
 ```bash
-npm run dev
+# 构建镜像
+docker build -t myapi:latest .
+
+# 运行容器
+docker run -d -p 3000:3000 --name myapi myapi:latest
 ```
 
-自动监听文件变化并重启服务。
-
-### 生产模式
+### Docker Compose
 
 ```bash
-npm start
+docker-compose up -d
 ```
 
-## 环境变量
-
-| 变量 | 默认值 | 说明 |
-|-----|------|------|
-| PORT | 3000 | 服务器监听端口 |
-| TIMEOUT | 8000 | 请求超时时间（毫秒） |
-
-**配置示例：**
-```bash
-PORT=8080 TIMEOUT=5000 npm start
-```
-
-## API 文档
-
-### 主页
-```
-GET /
-```
-返回 API 说明文档，包含所有可用端点的使用方法。
+## 🌐 API接口
 
 ### 健康检查
 ```
 GET /health
 ```
 
-**响应示例：**
-```json
-{
-  "status": "healthy",
-  "timestamp": "2026-02-04T10:30:45.123Z",
-  "uptime": 1234.567
-}
-```
-
-用于监控和负载均衡器集成。
-
 ### 网站可用性检测
 ```
-GET /uptime?url=<url>
+GET /uptime?url=https://example.com
 ```
-
-**参数：**
-- `url` (必须) - 目标网站 URL，需包含协议（http/https）
-
-**响应示例（成功）：**
-```json
-{
-  "status": "up",
-  "code": 200,
-  "ms": 234
-}
-```
-
-**响应示例（失败）：**
-```json
-{
-  "status": "down",
-  "code": 504,
-  "ms": 8001,
-  "error": "Request timeout"
-}
-```
-
-**错误码说明：**
-| 状态码 | 说明 |
-|------|------|
-| 200 | 网站在线 |
-| 400 | URL 格式错误或 DNS 解析失败 |
-| 503 | 连接被拒绝 |
-| 504 | 请求超时 |
-| 5xx | 其他错误 |
 
 ### 网站图标获取
 ```
-GET /favicon?url=<url>
+GET /favicon?url=https://github.com
 ```
 
-**参数：**
-- `url` (必须) - 目标网站 URL，需包含协议（http/https）
-
-**功能：**
-- 自动解析网站 HTML 提取 favicon 链接
-- 回退到默认的 `/favicon.ico` 路径
-- 直接返回图片二进制数据
-
-### 一言
+### 一言API
 ```
 GET /hitokoto
+GET /hitokoto?c=a&encode=json
 ```
 
-API 兼容 [hitokoto.cn 官方接口](https://developer.hitokoto.cn/sentence/)。
+## ⚙️ 环境变量
 
-**请求参数：**
-| 参数 | 示例 | 说明 |
-|-----|------|------|
-| c | `?c=a` 或 `?c=a&c=c` | 句子类型，支持多个 |
-| encode | `json` / `text` / `js` | 返回编码格式 |
-| callback | `?callback=myfunc` | JSONP 回调函数名 |
-| select | `?select=.hitokoto` | JS 选择器（配合 `encode=js`） |
-| min_length | `?min_length=10` | 句子最小长度 |
-| max_length | `?max_length=30` | 句子最大长度 |
+| 变量名 | 默认值 | 描述 |
+|--------|--------|------|
+| PORT | 3000 | 服务监听端口 |
+| TIMEOUT | 8000 | 请求超时时间(毫秒) |
 
-**句子类型：**
-| 代码 | 类型 | 代码 | 类型 |
-|-----|------|-----|------|
-| a | 动画 | g | 其他 |
-| b | 漫画 | h | 影视 |
-| c | 游戏 | i | 诗词 |
-| d | 文学 | j | 网易云 |
-| e | 原创 | k | 哲学 |
-| f | 网络 | l | 抖机灵 |
+## 📈 版本历史
 
-**返回编码：**
-| encode | 说明 |
-|--------|------|
-| json | 返回 JSON 格式（默认） |
-| text | 返回纯文本 |
-| js | 返回 JavaScript，配合 `callback` 为 JSONP，配合 `select` 为 DOM 操作 |
+### v1.0.1 (最新)
+- 移除主页随机背景壁纸功能
+- 优化Docker镜像构建流程
+- 更新版本标签和元数据
 
-**响应示例：**
-```json
-{
-  "id": 1,
-  "uuid": "9818ecda-9cbf-4f2a-9af8-8136ef39cfcd",
-  "hitokoto": "与众不同的生活方式很累人呢，因为找不到借口。",
-  "type": "a",
-  "from": "幸运星",
-  "from_who": null,
-  "creator": "跳舞的果果",
-  "creator_uid": 0,
-  "reviewer": 0,
-  "commit_from": "web",
-  "created_at": "1468605909",
-  "length": 22
-}
-```
+### v1.0.0
+- 初始版本发布
+- 核心功能实现
 
-**获取类型统计：**
-```
-GET /hitokoto/types
-```
+## 📄 许可证
 
-**数据来源：**
-一言句子包来自 [hitokoto-osc/sentences-bundle](https://github.com/hitokoto-osc/sentences-bundle)，感谢 [hitokoto.cn](https://hitokoto.cn) 提供数据。
+MIT License
 
-## Docker 使用
+## 🤝 贡献
 
-### 直接使用 docker run
+欢迎提交Issue和Pull Request！
 
-```bash
-# 构建镜像
-docker build -t myapi .
+## 🙏 致谢
 
-# 运行容器
-docker run -p 3000:3000 myapi
-
-# 使用自定义端口和超时时间
-docker run -p 8080:3000 -e PORT=8080 -e TIMEOUT=5000 myapi
-```
-
-### 使用 Docker Compose（推荐）
-
-#### 基础部署
-
-```bash
-# 启动服务
-docker-compose up -d
-
-# 查看日志
-docker-compose logs -f myapi
-
-# 停止服务
-docker-compose down
-```
-
-#### Docker Compose 配置详解
-
-`docker-compose.yml` 包含以下配置：
-
-```yaml
-services:
-  myapi:
-    image: ghcr.io/lvcdy/myapi:latest
-    container_name: myapi
-    restart: always
-    ports:
-      - "3000:3000"
-    environment:
-      - PORT=3000
-      - TIMEOUT=8000
-    volumes:
-      - myapi-logs:/app/logs
-    networks:
-      - myapi-network
-
-volumes:
-  myapi-logs:
-    driver: local
-
-networks:
-  myapi-network:
-    driver: bridge
-```
-
-**配置说明：**
-- `image` - 使用 GitHub Container Registry 的预构建镜像
-- `container_name` - 容器名称
-- `restart: always` - 容器异常退出时自动重启
-- `ports` - 端口映射（主机:容器）
-- `environment` - 环境变量配置
-- `volumes` - 数据卷挂载（用于持久化日志）
-- `networks` - 容器网络隔离
-
-#### 本地开发版本
-
-如果需要本地构建和测试，使用以下配置：
-
-```yaml
-services:
-  myapi:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    # ... 其他配置相同
-```
-
-**配置说明：**
-- `build` - 从本地 Dockerfile 构建镜像
-- `ports` - 端口映射（主机:容器）
-- `environment` - 环境变量配置
-- `restart: unless-stopped` - 自动重启策略
-- `networks` - 容器网络配置
-
-#### 自定义部署
-
-如需修改配置，编辑 `docker-compose.yml`：
-
-```yaml
-environment:
-  - PORT=8080           # 修改服务端口
-  - TIMEOUT=5000        # 修改请求超时时间
-```
-
-然后重启服务：
-
-```bash
-docker-compose down
-docker-compose up -d
-```
-
-## 请求示例
-
-### 使用 cURL
-
-```bash
-# 检测 Google 在线状态
-curl "http://localhost:3000/uptime?url=https://google.com"
-
-# 获取 GitHub 的 Favicon
-curl "http://localhost:3000/favicon?url=https://github.com"
-```
-
-### 使用 JavaScript
-
-```javascript
-// 检测网站可用性
-const response = await fetch('/uptime?url=https://example.com');
-const data = await response.json();
-console.log(data);
-
-// 获取网站图标
-const iconUrl = await fetch('/favicon?url=https://example.com')
-  .then(r => r.url); // 获取重定向后的真实 URL
-```
-
-## 依赖
-
-- **Hono** - 轻量级 Web 框架
-- **@hono/node-server** - Node.js 服务器适配器
-- **axios** - HTTP 请求库
-
-## 技术栈
-
-- Node.js (ES Module)
-- Hono 4.6.14+
-- Tailwind CSS (UI)
-
-## 许可证
-
-MIT
+- 数据来源于 [hitokoto.cn](https://hitokoto.cn)
+- 使用 [Hono](https://hono.dev) Web框架

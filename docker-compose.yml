@@ -1,7 +1,7 @@
 services:
   myapi:
-    image: ghcr.io/lvcdy/myapi:latest
-    container_name: myapi
+    image: myapi:latest
+    container_name: myapi-v1.0.1
     restart: always
     ports:
       - "3000:3000"

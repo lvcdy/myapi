@@ -17,11 +17,6 @@ export function getHomepageHtml() {
         <style>
             body {
                 font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-                background-size: cover;
-                background-position: center;
-                background-attachment: fixed;
-                background-repeat: no-repeat;
-                transition: background-image 1s ease-in-out;
             }
             code {
                 font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
@@ -74,31 +69,12 @@ export function getHomepageHtml() {
                 0%, 100% { opacity: 1; }
                 50% { opacity: .5; }
             }
-            .background-info {
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                background: rgba(255, 255, 255, 0.9);
-                backdrop-filter: blur(10px);
-                padding: 8px 12px;
-                border-radius: 20px;
-                font-size: 12px;
-                color: #6b7280;
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-                z-index: 1000;
-                opacity: 0.7;
-                transition: opacity 0.3s ease;
-            }
-            .background-info:hover {
-                opacity: 1;
-            }
+
         </style>
     </head>
     <body class="min-h-screen bg-gray-900">
         <div class="gradient-bg-overlay"></div>
-        <div id="background-info" class="background-info hidden">
-            <span id="bg-source">背景来源: t.alcy.cc</span>
-        </div>
+
         <!-- Header -->
         <header class="py-12 px-4 text-center animate-fade-in-up">
             <div class="max-w-4xl mx-auto">
@@ -250,54 +226,6 @@ export function getHomepageHtml() {
         </footer>
 
         <script>
-            // 背景图片API配置
-            const BACKGROUND_API = 'https://t.alcy.cc/ycy';
-            let currentBackground = '';
-            
-            // 加载背景图片
-            async function loadBackground() {
-                try {
-                    // 使用XMLHttpRequest处理重定向
-                    const xhr = new XMLHttpRequest();
-                    xhr.open('GET', BACKGROUND_API, true);
-                    xhr.responseType = 'blob';
-                    
-                    xhr.onload = function() {
-                        if (xhr.status === 200) {
-                            const imageUrl = URL.createObjectURL(xhr.response);
-                            if (imageUrl !== currentBackground) {
-                                document.body.style.backgroundImage = 'url("' + imageUrl + '")';
-                                // 清理旧的URL对象
-                                if (currentBackground) {
-                                    URL.revokeObjectURL(currentBackground);
-                                }
-                                currentBackground = imageUrl;
-                                
-                                // 显示背景信息
-                                const bgInfo = document.getElementById('background-info');
-                                const bgSource = document.getElementById('bg-source');
-                                bgSource.textContent = '背景来源: t.alcy.cc 随机图片';
-                                bgInfo.classList.remove('hidden');
-                            }
-                        }
-                    };
-                    
-                    xhr.onerror = function() {
-                        console.warn('背景图片加载失败');
-                    };
-                    
-                    xhr.send();
-                } catch (error) {
-                    console.warn('背景图片加载失败:', error);
-                }
-            }
-            
-            // 定期更新背景（每5分钟）
-            function startBackgroundRotation() {
-                loadBackground();
-                setInterval(loadBackground, 5 * 60 * 1000); // 5分钟
-            }
-            
             function copyToClipboard(text) {
                 navigator.clipboard.writeText(text).then(() => {
                     // 简单的视觉反馈
@@ -311,9 +239,6 @@ export function getHomepageHtml() {
 
             // 添加滚动动画
             document.addEventListener('DOMContentLoaded', function() {
-                // 启动背景轮播
-                startBackgroundRotation();
-                
                 const observerOptions = {
                     threshold: 0.1,
                     rootMargin: '0px 0px -50px 0px'
