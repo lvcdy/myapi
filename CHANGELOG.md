@@ -1,3 +1,10 @@
+## [1.3.2](https://github.com/lvcdy/myapi/compare/v1.3.1...v1.3.2) (2026-02-05)
+
+
+### Bug Fixes
+
+* 归一化长度参数，确保 maxLength 和 minLength 为有效值 ([d9282d8](https://github.com/lvcdy/myapi/commit/d9282d8f0f7ae2c30a82ef72f2a94aadfa91da89))
+
 ## [1.3.1](https://github.com/lvcdy/myapi/compare/v1.3.0...v1.3.1) (2026-02-05)
 
 
