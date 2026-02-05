@@ -3,7 +3,7 @@ name: Build and Push Docker Image
 on:
   push:
     branches: ["main"]
-    tags: ["v*"]
+    tags: ["release-v*"]
 
 jobs:
   build-and-push:
@@ -40,10 +40,8 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
             # 从 package.json 读取版本号
             type=raw,value=${{ steps.pkg.outputs.version }},enable={{is_default_branch}}
-            # 如果是 git tag 推送，使用 tag 名称
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
+            # 从 release-v* tag 提取版本号
+            type=match,pattern=release-v(.+),group=1
             # 短 SHA 作为备用标签
             type=sha,prefix=
 
