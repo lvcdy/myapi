@@ -3,7 +3,7 @@
 # 使用更精简的基础镜像和优化的构建流程
 
 # 第一阶段：依赖构建（使用更小的基础镜像）
-FROM node:20-alpine AS builder
+FROM registry.aliyuncs.com/aliyun/node:20-alpine AS builder
 
 # 启用 corepack 并准备 pnpm
 RUN corepack enable && \
@@ -21,7 +21,7 @@ RUN pnpm install --prod --frozen-lockfile --ignore-scripts && \
     npm cache clean --force
 
 # 第二阶段：数据处理
-FROM alpine:3.18 AS data-processor
+FROM registry.aliyuncs.com/aliyun/alpine:3.18 AS data-processor
 
 # 安装必要工具
 RUN apk add --no-cache tar gzip
@@ -32,7 +32,7 @@ COPY src/data/sentences.tar.gz ./
 RUN tar -xzf sentences.tar.gz && rm sentences.tar.gz
 
 # 第三阶段：最终运行时（使用标准Node.js Alpine镜像）
-FROM node:20-alpine
+FROM registry.aliyuncs.com/aliyun/node:20-alpine
 
 # 设置环境变量
 ENV NODE_ENV=production
