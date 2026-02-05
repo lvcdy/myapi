@@ -1,3 +1,10 @@
+## [1.3.3](https://github.com/lvcdy/myapi/compare/v1.3.2...v1.3.3) (2026-02-05)
+
+
+### Bug Fixes
+
+* 移除数据目录的忽略规则 ([71b39df](https://github.com/lvcdy/myapi/commit/71b39dfad8d3c4a8ff589748153f65e95b5f8949))
+
 ## [1.3.2](https://github.com/lvcdy/myapi/compare/v1.3.1...v1.3.2) (2026-02-05)
 
 
