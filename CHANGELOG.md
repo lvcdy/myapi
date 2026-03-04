@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/lvcdy/myapi/compare/v1.4.0...v1.5.0) (2026-03-04)
+
+
+### Features
+
+* 添加配置验证功能，优化请求统计和一言处理逻辑 ([0f1acd6](https://github.com/lvcdy/myapi/commit/0f1acd677a7c153c65a88f77bdbf86fe12bdb5f9))
+
 # [1.4.0](https://github.com/lvcdy/myapi/compare/v1.3.3...v1.4.0) (2026-02-05)
 
 
