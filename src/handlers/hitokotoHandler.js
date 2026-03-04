@@ -7,6 +7,25 @@
 import { ensureLoaded, getRandomHitokoto, getStats, hitokotoTypes } from '../data/hitokoto.js'
 
 /**
+ * 验证 JSONP 回调函数名是否安全
+ * @param {string} name - 回调函数名
+ * @returns {boolean}
+ */
+function isSafeCallbackName(name) {
+    return /^[a-zA-Z_$][a-zA-Z0-9_$.]*$/.test(name)
+}
+
+/**
+ * 转义用于 JS 字符串的特殊字符，防止 XSS
+ * @param {string} str - 原始字符串
+ * @returns {string}
+ */
+function escapeForJs(str) {
+    return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
+        .replace(/</g, '\\x3c').replace(/>/g, '\\x3e')
+}
+
+/**
  * 处理一言请求
  * 支持参数:
  * - c: 句子类型，支持多个 (?c=a&c=c)
@@ -30,27 +49,17 @@ export function handleHitokoto(c) {
     const callback = c.req.query('callback')
     const select = c.req.query('select') || '.hitokoto'
     const minLength = parseInt(c.req.query('min_length')) || 0
-    const maxLength = parseInt(c.req.query('max_length')) || Infinity
-
-    // 验证类型参数
-    for (const type of types) {
-        if (!hitokotoTypes[type]) {
-            // 按官方文档，无效类型作为动画(a)处理
-            // 这里我们选择忽略无效类型
-        }
-    }
+    const rawMaxLength = parseInt(c.req.query('max_length'))
+    const maxLength = isNaN(rawMaxLength) ? Infinity : rawMaxLength
 
     // 过滤有效类型
     const validTypes = types.filter(t => hitokotoTypes[t])
-
-    // 归一化 maxLength（如果是 NaN 或其他非法值，设为 Infinity）
-    const normalizedMaxLength = isNaN(maxLength) || maxLength === null ? Infinity : maxLength
 
     // 获取随机一言
     const item = getRandomHitokoto({
         types: validTypes.length > 0 ? validTypes : null,
         minLength,
-        maxLength: normalizedMaxLength
+        maxLength
     })
 
     if (!item) {
@@ -60,7 +69,7 @@ export function handleHitokoto(c) {
             parameters: {
                 types: validTypes.length > 0 ? validTypes : '全部',
                 minLength,
-                maxLength: normalizedMaxLength === Infinity ? '无限制' : normalizedMaxLength
+                maxLength: maxLength === Infinity ? '无限制' : maxLength
             },
             hint: '请检查参数是否过于严格（如 min_length/max_length），或类型参数是否正确'
         }, 503)
@@ -75,13 +84,18 @@ export function handleHitokoto(c) {
 
         case 'js':
             if (callback) {
-                // JSONP 模式
+                // JSONP 模式 - 验证回调函数名防止 XSS
+                if (!isSafeCallbackName(callback)) {
+                    return c.json({ error: 'invalid callback name' }, 400)
+                }
                 return c.text(`${callback}(${JSON.stringify(item)});`, 200, {
                     'Content-Type': 'application/javascript; charset=utf-8'
                 })
             } else {
-                // 同步 DOM 操作模式
-                const jsCode = `(function(){var e=document.querySelector('${select}');if(e){e.innerText='${item.hitokoto.replace(/'/g, "\\'")}';}})()`
+                // 同步 DOM 操作模式 - 转义内容防止 XSS
+                const safeSelect = escapeForJs(select)
+                const safeText = escapeForJs(item.hitokoto)
+                const jsCode = `(function(){var e=document.querySelector('${safeSelect}');if(e){e.innerText='${safeText}';}})()`
                 return c.text(jsCode, 200, {
                     'Content-Type': 'application/javascript; charset=utf-8'
                 })

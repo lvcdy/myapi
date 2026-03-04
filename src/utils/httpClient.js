@@ -2,7 +2,6 @@
  * HTTP 客户端工具
  */
 
-import axios from 'axios'
 import { HTTP_CONFIG, MIME_TYPES } from '../constants/index.js'
 
 /**

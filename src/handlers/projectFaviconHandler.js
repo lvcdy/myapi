@@ -31,4 +31,4 @@ const serveFavicon = (contentType) => (c) => c.body(getFavicon(), 200, {
 
 export const handleFaviconSvg = serveFavicon('image/svg+xml; charset=utf-8')
 export const handleFaviconIco = serveFavicon('image/x-icon')
-export const handleAppleTouchIcon = serveFavicon('image/svg+xml; charset=utf-8')
+export const handleAppleTouchIcon = serveFavicon('image/png')

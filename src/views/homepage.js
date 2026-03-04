@@ -4,7 +4,11 @@
 
 import { html } from 'hono/html'
 
+let cachedHtml = null
+
 export function getHomepageHtml() {
+    if (cachedHtml) return cachedHtml
+
     const htmlStr = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -475,5 +479,6 @@ export function getHomepageHtml() {
 </body>
 </html>`;
 
-    return html(htmlStr);
+    cachedHtml = html(htmlStr);
+    return cachedHtml;
 }

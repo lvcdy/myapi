@@ -3,6 +3,8 @@
  * 统计API请求的数量、类型和分布
  */
 
+const MAX_TRACKED_PATHS = 100
+
 let stats = {
     totalRequests: 0,
     requestsByMethod: {},
@@ -33,8 +35,10 @@ export function createRequestCounter() {
         // 统计请求方法
         stats.requestsByMethod[method] = (stats.requestsByMethod[method] || 0) + 1
 
-        // 统计请求路径
-        stats.requestsByPath[path] = (stats.requestsByPath[path] || 0) + 1
+        // 统计请求路径（限制最大跟踪数量，防止内存泄漏）
+        if (stats.requestsByPath[path] !== undefined || Object.keys(stats.requestsByPath).length < MAX_TRACKED_PATHS) {
+            stats.requestsByPath[path] = (stats.requestsByPath[path] || 0) + 1
+        }
 
         await next()
 
