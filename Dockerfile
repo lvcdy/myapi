@@ -43,20 +43,13 @@ USER nodejs
 
 EXPOSE 3000
 
-# 健康检查
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:3000/health', (r) => {if(r.statusCode !== 200) throw new Error(r.statusCode)})"
-
-CMD ["node", "index.js"]
-
 # 标签镜像版本
 LABEL version="1.1.0"
 LABEL maintainer="myapi"
 LABEL description="一言 API - 提供随机句子和可用性检测"
 
 # 健康检查
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+    CMD node -e "require('http').get('http://localhost:3000/health', (r) => {if(r.statusCode !== 200) throw new Error(r.statusCode)})"
 
-# 启动应用
 CMD ["node", "index.js"]
