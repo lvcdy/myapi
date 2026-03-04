@@ -1,5 +1,5 @@
 /**
- * 主页 HTML 视图 - 现代化美观设计
+ * 主页 HTML 视图 - 零外部依赖，纯 CSS 现代设计
  */
 
 import { html } from 'hono/html'
@@ -15,467 +15,578 @@ export function getHomepageHtml() {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Web Tools API - 一言、网站可用性检测、网站图标获取工具集">
-    <meta name="theme-color" content="#6366f1">
-    
-    <!-- Favicon 图标 -->
+    <meta name="theme-color" content="#0f172a">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    
-    <title>Web Tools API - 现代化网站工具箱</title>
-    <script src="https://cdn.tailwindcss.com"><\/script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <title>Web Tools API</title>
     <style>
-        * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-        code { font-family: 'JetBrains Mono', monospace; }
-        
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #0b0f1a;
+            --bg-card: rgba(15, 23, 42, 0.65);
+            --bg-card-hover: rgba(15, 23, 42, 0.85);
+            --border: rgba(56, 189, 248, 0.1);
+            --border-hover: rgba(6, 182, 212, 0.4);
+            --cyan: #22d3ee;
+            --cyan-dim: #0891b2;
+            --gold: #fbbf24;
+            --gold-dim: #f59e0b;
+            --text: #e2e8f0;
+            --text-dim: #94a3b8;
+            --text-bright: #f1f5f9;
+            --radius: 16px;
+            --radius-lg: 24px;
+            --mono: 'SF Mono', 'Cascadia Code', 'Fira Code', 'JetBrains Mono', ui-monospace, monospace;
+            --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        }
+
+        html { scroll-behavior: smooth; }
+
         body {
-            background: url('https://t.alcy.cc/ycy') center/cover no-repeat fixed;
-            background-color: #0d1117;
+            font-family: var(--sans);
+            background: var(--bg-primary);
+            color: var(--text);
             min-height: 100vh;
-            position: relative;
             overflow-x: hidden;
-            color: #ffffff;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            line-height: 1.6;
         }
-        
-        /* 动画背景 */
-        .animated-bg {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            z-index: 0;
-            pointer-events: none;
+
+        /* ====== 背景效果 ====== */
+        .bg-mesh {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background:
+                radial-gradient(ellipse 600px 400px at 15% 20%, rgba(6, 182, 212, 0.07) 0%, transparent 70%),
+                radial-gradient(ellipse 500px 500px at 85% 60%, rgba(99, 102, 241, 0.06) 0%, transparent 70%),
+                radial-gradient(ellipse 400px 300px at 50% 90%, rgba(251, 191, 36, 0.04) 0%, transparent 70%);
         }
-        
-        .blob {
-            position: absolute;
-            border-radius: 40%;
-            filter: blur(50px);
-            opacity: 0.6;
+        .grid-lines {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.03;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px);
+            background-size: 60px 60px;
         }
-        
-        .blob-1 {
-            width: 400px;
-            height: 400px;
-            top: -100px;
-            left: -100px;
-            background: radial-gradient(circle at 30% 30%, rgba(34, 197, 94, 0.12) 0%, transparent 50%);
-            animation: float 8s ease-in-out infinite;
+
+        /* ====== 布局 ====== */
+        .wrapper { position: relative; z-index: 1; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+        /* ====== Header ====== */
+        header { padding: 80px 0 48px; text-align: center; }
+        .logo-icon {
+            display: inline-block; width: 56px; height: 56px; margin-bottom: 20px;
+            border-radius: 14px; overflow: hidden;
+            box-shadow: 0 0 40px rgba(6, 182, 212, 0.2);
+            animation: fadeIn 0.6s ease;
         }
-        
-        .blob-2 {
-            width: 300px;
-            height: 300px;
-            top: 50%;
-            right: -50px;
-            background: radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.12) 0%, transparent 50%);
-            animation: float 10s ease-in-out infinite 1s;
+        .logo-icon img { width: 100%; height: 100%; display: block; }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 800; letter-spacing: -0.03em;
+            background: linear-gradient(135deg, var(--cyan) 0%, #67e8f9 40%, var(--gold) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; line-height: 1.15;
+            animation: fadeIn 0.6s ease 0.1s both;
         }
-        
-        .blob-3 {
-            width: 350px;
-            height: 350px;
-            bottom: -100px;
-            left: 20%;
-            background: radial-gradient(circle at 30% 30%, rgba(14, 165, 233, 0.12) 0%, transparent 50%);
-            animation: float 12s ease-in-out infinite 2s;
+        .subtitle {
+            font-size: 1.05rem; color: var(--text-dim); max-width: 520px;
+            margin: 16px auto 28px; line-height: 1.7;
+            animation: fadeIn 0.6s ease 0.2s both;
         }
-        
-        @keyframes float {
-            0%, 100% { transform: translate(0px, 0px); }
-            25% { transform: translate(-30px, 30px); }
-            50% { transform: translate(30px, -30px); }
-            75% { transform: translate(-20px, -40px); }
+        .badges {
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
+            animation: fadeIn 0.6s ease 0.3s both;
         }
-        
-        /* 动画效果 */
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
+        .badge {
+            padding: 6px 16px; border-radius: 999px; font-size: 0.8rem; font-weight: 600;
+            border: 1px solid var(--border); color: var(--cyan);
+            background: rgba(6, 182, 212, 0.06);
+            transition: all 0.3s ease;
+        }
+        .badge:hover {
+            border-color: var(--border-hover);
+            background: rgba(6, 182, 212, 0.12);
+            box-shadow: 0 0 16px rgba(6, 182, 212, 0.15);
+        }
+
+        /* ====== Section ====== */
+        .section { margin-bottom: 64px; }
+        .section-title {
+            font-size: 1.5rem; font-weight: 700; color: var(--text-bright);
+            margin-bottom: 8px; text-align: center;
+        }
+        .section-desc {
+            font-size: 0.9rem; color: var(--text-dim); text-align: center; margin-bottom: 40px;
+        }
+
+        /* ====== 功能卡片 ====== */
+        .card-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;
+        }
+        .card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 32px;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            backdrop-filter: blur(12px);
+        }
+        .card:hover {
+            background: var(--bg-card-hover); border-color: var(--border-hover);
+            transform: translateY(-6px);
+            box-shadow: 0 20px 50px -12px rgba(6, 182, 212, 0.12);
+        }
+        .card-icon {
+            width: 48px; height: 48px; border-radius: 12px; display: flex;
+            align-items: center; justify-content: center; font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        .card-icon.cyan { background: rgba(6, 182, 212, 0.12); }
+        .card-icon.gold { background: rgba(251, 191, 36, 0.12); }
+        .card-icon.violet { background: rgba(139, 92, 246, 0.12); }
+
+        .card h3 {
+            font-size: 1.1rem; font-weight: 700; color: var(--text-bright); margin-bottom: 8px;
+        }
+        .card p { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 16px; line-height: 1.6; }
+        .card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+        .card-tag {
+            font-size: 0.7rem; padding: 3px 10px; border-radius: 999px;
+            background: rgba(255,255,255,0.04); color: var(--text-dim);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+
+        /* ====== 终端风格代码块 ====== */
+        .terminal {
+            background: rgba(2, 6, 23, 0.7); border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 10px; overflow: hidden; cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .terminal:hover {
+            border-color: rgba(6, 182, 212, 0.3);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.08);
+        }
+        .terminal-bar {
+            display: flex; align-items: center; gap: 6px;
+            padding: 8px 12px; background: rgba(255,255,255,0.03);
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .terminal-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+        }
+        .dot-red { background: #ef4444; }
+        .dot-yellow { background: #eab308; }
+        .dot-green { background: #22c55e; }
+        .terminal-body {
+            padding: 12px 16px; font-family: var(--mono); font-size: 0.78rem;
+        }
+        .terminal-body .prompt { color: var(--cyan); }
+        .terminal-body .cmd { color: #e2e8f0; }
+        .copy-hint {
+            float: right; font-size: 0.65rem; color: var(--text-dim);
+            font-family: var(--sans); opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .terminal:hover .copy-hint { opacity: 1; }
+
+        /* ====== 一言预览 ====== */
+        .hitokoto-preview {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 40px 32px; text-align: center;
+            backdrop-filter: blur(12px); position: relative; overflow: hidden;
+        }
+        .hitokoto-preview::before {
+            content: '\\201C'; position: absolute; top: 12px; left: 24px;
+            font-size: 4rem; color: rgba(6, 182, 212, 0.08); font-family: Georgia, serif;
+            line-height: 1;
+        }
+        .hitokoto-text {
+            font-size: 1.15rem; color: var(--text-bright); line-height: 1.8;
+            max-width: 600px; margin: 0 auto 12px;
+            min-height: 1.8em;
+            transition: opacity 0.4s ease;
+        }
+        .hitokoto-from {
+            font-size: 0.85rem; color: var(--cyan-dim);
+        }
+        .hitokoto-actions { margin-top: 20px; }
+        .btn-refresh {
+            padding: 8px 24px; border-radius: 999px; border: 1px solid var(--border);
+            background: rgba(6, 182, 212, 0.08); color: var(--cyan);
+            font-size: 0.82rem; font-weight: 600; cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-refresh:hover {
+            background: rgba(6, 182, 212, 0.16); border-color: var(--border-hover);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.1);
+        }
+
+        /* ====== 统计面板 ====== */
+        .stats-panel {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 40px 32px;
+            backdrop-filter: blur(12px);
+        }
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px;
+        }
+        .stat-item {
+            text-align: center; padding: 20px 12px; border-radius: var(--radius);
+            background: rgba(6, 182, 212, 0.04); border: 1px solid rgba(6, 182, 212, 0.08);
+            transition: all 0.3s ease;
+        }
+        .stat-item:hover {
+            border-color: rgba(6, 182, 212, 0.2);
+            background: rgba(6, 182, 212, 0.08);
+        }
+        .stat-value {
+            font-size: 1.8rem; font-weight: 800; letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--cyan), var(--gold));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-label { font-size: 0.78rem; color: var(--text-dim); margin-top: 6px; }
+
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .detail-box {
+            padding: 20px; border-radius: var(--radius);
+            background: rgba(2, 6, 23, 0.4); border: 1px solid rgba(255,255,255,0.04);
+        }
+        .detail-title {
+            font-size: 0.82rem; font-weight: 600; color: var(--text-dim); margin-bottom: 14px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .detail-title .dot {
+            width: 6px; height: 6px; border-radius: 50%; display: inline-block;
+        }
+        .detail-title .dot-cyan { background: var(--cyan); }
+        .detail-title .dot-gold { background: var(--gold); }
+
+        .bar-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 6px 0;
+        }
+        .bar-label { font-size: 0.8rem; color: var(--text-dim); font-weight: 500; }
+        .bar-right { display: flex; align-items: center; gap: 10px; }
+        .bar-track {
+            width: 80px; height: 4px; background: rgba(255,255,255,0.06);
+            border-radius: 2px; overflow: hidden;
+        }
+        .bar-fill-cyan {
+            height: 100%; border-radius: 2px; transition: width 0.5s ease;
+            background: linear-gradient(to right, var(--cyan-dim), var(--cyan));
+        }
+        .bar-fill-gold {
+            height: 100%; border-radius: 2px; transition: width 0.5s ease;
+            background: linear-gradient(to right, var(--gold-dim), var(--gold));
+        }
+        .bar-count { font-size: 0.78rem; font-weight: 700; color: var(--cyan); min-width: 28px; text-align: right; }
+        .bar-count-gold { font-size: 0.78rem; font-weight: 700; color: var(--gold); min-width: 28px; text-align: right; }
+        .rank-badge { font-size: 0.9rem; margin-right: 4px; }
+
+        /* ====== Footer ====== */
+        footer {
+            padding: 32px 0; text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.04);
+        }
+        .footer-links { display: flex; justify-content: center; gap: 24px; margin-bottom: 10px; flex-wrap: wrap; }
+        .footer-links a {
+            font-size: 0.82rem; color: var(--text-dim); text-decoration: none;
+            transition: color 0.2s;
+        }
+        .footer-links a:hover { color: var(--cyan); }
+        .footer-copy { font-size: 0.72rem; color: rgba(148, 163, 184, 0.5); }
+
+        /* ====== Toast ====== */
+        .toast {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9);
+            background: rgba(6, 182, 212, 0.9); color: #fff; padding: 10px 24px;
+            border-radius: 10px; font-size: 0.85rem; font-weight: 600; z-index: 1000;
+            pointer-events: none; opacity: 0;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+        }
+        .toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+        /* ====== Animations ====== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(16px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        .animate-fade-in { animation: fadeInUp 0.7s ease-out forwards; }
-        
-        /* 玻璃卡片 */
-        .glass-card {
-            background: rgba(13, 17, 23, 0.5);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
-        }
-        
-        .glass-card:hover {
-            background: rgba(13, 17, 23, 0.65);
-            border-color: rgba(59, 130, 246, 0.4);
-            transform: translateY(-8px);
-            box-shadow: 0 20px 60px rgba(34, 197, 94, 0.2);
-        }
-        
-        .feature-icon {
-            font-size: 3rem;
-            animation: pulse 2s ease-in-out infinite;
-        }
-        
-        .stat-number {
-            background: linear-gradient(135deg, #22c55e 0%, #06b6d4 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: 800;
-            font-size: 2.5rem;
-            letter-spacing: -0.02em;
-        }
-        
-        .code-block {
-            background: rgba(30, 41, 59, 0.8);
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .code-block:hover {
-            background: rgba(30, 41, 59, 0.95);
-            border-color: rgba(59, 130, 246, 0.5);
-            box-shadow: 0 0 20px rgba(34, 197, 94, 0.15);
-            transform: scale(1.02);
-        }
-        
-        .status-badge {
-            display: inline-block;
-            padding: 0.5rem 1rem;
-            background: rgba(59, 130, 246, 0.12);
-            border: 1px solid rgba(59, 130, 246, 0.25);
-            border-radius: 9999px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #38bdf8;
-            transition: all 0.3s ease;
-        }
-        
-        .status-badge:hover {
-            background: rgba(59, 130, 246, 0.2);
-            border-color: rgba(59, 130, 246, 0.5);
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
-        }
-        
-        .title {
-            font-size: 3.5rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            background: linear-gradient(135deg, #00d4ff 0%, #00bfff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin: 0;
-            line-height: 1.2;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
-        }
-        
+        .fade-in { animation: fadeIn 0.5s ease both; }
+        .fade-in-1 { animation-delay: 0.05s; }
+        .fade-in-2 { animation-delay: 0.1s; }
+        .fade-in-3 { animation-delay: 0.15s; }
+        .fade-in-4 { animation-delay: 0.2s; }
+        .fade-in-5 { animation-delay: 0.25s; }
+
+        /* ====== Responsive ====== */
         @media (max-width: 768px) {
-            .title { font-size: 2.5rem; }
-        }
-        
-        .content-wrapper {
-            position: relative;
-            z-index: 10;
-            background: radial-gradient(ellipse at center top, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.35) 100%);
-        }
-        
-        .footer-separator {
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
-        }
-        
-        .stat-card {
-            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(14, 165, 233, 0.15) 100%);
-            border: 1px solid rgba(34, 197, 94, 0.25);
-            transition: all 0.3s ease;
-        }
-        
-        .stat-card:hover {
-            border-color: rgba(34, 197, 94, 0.5);
-            box-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
-        }
-        
-        .progress-bar {
-            background: linear-gradient(to right, #22c55e, #06b6d4);
-            height: 6px;
-            border-radius: 3px;
-            transition: width 0.5s ease;
-        }
-        
-        .progress-bar-path {
-            background: linear-gradient(to right, #06b6d4, #0ea5e9);
-            height: 6px;
-            border-radius: 3px;
-            transition: width 0.5s ease;
+            header { padding: 56px 0 32px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .detail-grid { grid-template-columns: 1fr; }
+            .card-grid { grid-template-columns: 1fr; }
+            .stat-value { font-size: 1.4rem; }
         }
     </style>
 </head>
 <body>
-    <!-- 动画背景 -->
-    <div class="animated-bg">
-        <div class="blob blob-1"><\/div>
-        <div class="blob blob-2"><\/div>
-        <div class="blob blob-3"><\/div>
-    </div>
-    
-    <!-- 主要内容 -->
-    <div class="content-wrapper">
-        <!-- 头部 -->
-        <header class="pt-20 pb-12 px-4 text-center">
-            <div class="max-w-4xl mx-auto">
-                <div class="mb-6 animate-fade-in">
-                    <h1 class="title">🛠️ Web Tools API</h1>
+    <div class="bg-mesh"><\/div>
+    <div class="grid-lines"><\/div>
+
+    <div class="wrapper">
+        <div class="container">
+            <!-- Header -->
+            <header>
+                <div class="logo-icon"><img src="/favicon.svg" alt="Logo"><\/div>
+                <h1>Web Tools API</h1>
+                <p class="subtitle">轻量自托管工具箱 — 网站监测、图标获取、一言语录</p>
+                <div class="badges">
+                    <span class="badge">⚡ 极速响应</span>
+                    <span class="badge">🔒 安全可靠</span>
+                    <span class="badge">📦 Docker 就绪</span>
+                    <span class="badge">🚀 零依赖前端</span>
                 </div>
-                <p class="text-lg text-white max-w-3xl mx-auto leading-relaxed mb-8 animate-fade-in" style="animation-delay: 0.1s">
-                    现代化自托管网站工具箱，集网站监测、图标获取、一言统计于一体
-                </p>
-                <div class="flex flex-wrap justify-center gap-3 animate-fade-in" style="animation-delay: 0.2s">
-                    <span class="status-badge">✨ 现代化设计</span>
-                    <span class="status-badge">⚡ 极速响应</span>
-                    <span class="status-badge">🔒 安全可靠</span>
-                    <span class="status-badge">📦 Docker 就绪</span>
-                </div>
-            </div>
-        </header>
+            </header>
 
-        <!-- 主体内容 -->
-        <main class="pb-20 px-4">
-            <div class="max-w-7xl mx-auto">
-                <!-- 功能卡片 -->
-                <section class="mb-20">
-                    <h2 class="text-3xl font-bold text-center mb-4 text-white">核心功能</h2>
-                    <p class="text-center text-slate-100 mb-12 max-w-2xl mx-auto">完整的API集合，覆盖网站工程师的常见需求</p>
-                    
-                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        <!-- 可用性检测 -->
-                        <div class="glass-card rounded-2xl p-8 animate-fade-in" style="animation-delay: 0.1s">
-                            <div class="feature-icon mb-6">📡</div>
-                            <h3 class="text-xl font-bold text-white mb-3">网站可用性检测</h3>
-                            <p class="text-slate-50 text-sm mb-6 leading-relaxed">实时监测网站在线状态，获取精准的响应时间和状态码数据</p>
-                            <div class="space-y-2">
-                                <div class="code-block rounded-lg p-4" onclick="copyCode(this)">
-                                    <code class="text-cyan-400 text-xs font-mono">/uptime?url=https://google.com</code>
-                                </div>
-                                <p class="text-xs text-slate-200">• HTTP/HTTPS 兼容 • 8秒超时保护 • 详细报告</p>
-                            </div>
-                        </div>
+            <!-- 功能卡片 -->
+            <section class="section">
+                <h2 class="section-title">核心功能</h2>
+                <p class="section-desc">三个精炼接口，覆盖日常开发所需</p>
+                <div class="card-grid">
+                    <div class="card fade-in fade-in-1">
+                        <div class="card-icon cyan">📡<\/div>
+                        <h3>网站可用性检测</h3>
+                        <p>实时监测网站在线状态，获取精准的响应时间与状态码</p>
+                        <div class="terminal" onclick="copyCode(this)">
+                            <div class="terminal-bar">
+                                <span class="terminal-dot dot-red"><\/span>
+                                <span class="terminal-dot dot-yellow"><\/span>
+                                <span class="terminal-dot dot-green"><\/span>
+                                <span class="copy-hint">点击复制<\/span>
+                            <\/div>
+                            <div class="terminal-body">
+                                <span class="prompt">GET </span><span class="cmd">/uptime?url=https://google.com</span>
+                            <\/div>
+                        <\/div>
+                        <div class="card-tags">
+                            <span class="card-tag">HTTP/HTTPS<\/span>
+                            <span class="card-tag">超时保护<\/span>
+                            <span class="card-tag">详细报告<\/span>
+                        <\/div>
+                    <\/div>
 
-                        <!-- 图标获取 -->
-                        <div class="glass-card rounded-2xl p-8 animate-fade-in" style="animation-delay: 0.2s">
-                            <div class="feature-icon mb-6">🖼️</div>
-                            <h3 class="text-xl font-bold text-white mb-3">网站图标获取</h3>
-                            <p class="text-slate-50 text-sm mb-6 leading-relaxed">智能解析网站元数据，一键提取高质量 Favicon 图标</p>
-                            <div class="space-y-2">
-                                <div class="code-block rounded-lg p-4" onclick="copyCode(this)">
-                                    <code class="text-cyan-400 text-xs font-mono">/favicon?url=https://github.com</code>
-                                </div>
-                                <p class="text-xs text-slate-200">• 自动降级策略 • 多格式支持 • 快速缓存</p>
-                            </div>
-                        </div>
+                    <div class="card fade-in fade-in-2">
+                        <div class="card-icon gold">🖼️<\/div>
+                        <h3>网站图标获取</h3>
+                        <p>智能解析网站元数据，自动提取高清 Favicon 图标</p>
+                        <div class="terminal" onclick="copyCode(this)">
+                            <div class="terminal-bar">
+                                <span class="terminal-dot dot-red"><\/span>
+                                <span class="terminal-dot dot-yellow"><\/span>
+                                <span class="terminal-dot dot-green"><\/span>
+                                <span class="copy-hint">点击复制<\/span>
+                            <\/div>
+                            <div class="terminal-body">
+                                <span class="prompt">GET </span><span class="cmd">/favicon?url=https://github.com</span>
+                            <\/div>
+                        <\/div>
+                        <div class="card-tags">
+                            <span class="card-tag">自动降级<\/span>
+                            <span class="card-tag">多格式<\/span>
+                            <span class="card-tag">智能缓存<\/span>
+                        <\/div>
+                    <\/div>
 
-                        <!-- 一言API -->
-                        <div class="glass-card rounded-2xl p-8 animate-fade-in" style="animation-delay: 0.3s">
-                            <div class="feature-icon mb-6">💬</div>
-                            <h3 class="text-xl font-bold text-white mb-3">一言 API</h3>
-                            <p class="text-slate-50 text-sm mb-6 leading-relaxed">超过 7000 条精选语录库，提供多样化内容分类</p>
-                            <div class="space-y-2">
-                                <div class="code-block rounded-lg p-4" onclick="copyCode(this)">
-                                    <code class="text-cyan-400 text-xs font-mono">/hitokoto?c=a</code>
-                                </div>
-                                <p class="text-xs text-slate-200">• 12个分类 • 灵活参数 • 实时更新</p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+                    <div class="card fade-in fade-in-3">
+                        <div class="card-icon violet">💬<\/div>
+                        <h3>一言 API</h3>
+                        <p>7000+ 条精选语录，12 个内容分类，兼容官方接口</p>
+                        <div class="terminal" onclick="copyCode(this)">
+                            <div class="terminal-bar">
+                                <span class="terminal-dot dot-red"><\/span>
+                                <span class="terminal-dot dot-yellow"><\/span>
+                                <span class="terminal-dot dot-green"><\/span>
+                                <span class="copy-hint">点击复制<\/span>
+                            <\/div>
+                            <div class="terminal-body">
+                                <span class="prompt">GET </span><span class="cmd">/hitokoto?c=a&encode=json</span>
+                            <\/div>
+                        <\/div>
+                        <div class="card-tags">
+                            <span class="card-tag">12种分类<\/span>
+                            <span class="card-tag">多编码<\/span>
+                            <span class="card-tag">JSONP<\/span>
+                        <\/div>
+                    <\/div>
+                <\/div>
+            </section>
 
-                <!-- 统计面板 -->
-                <section class="mb-12">
-                    <div class="glass-card rounded-3xl p-8 md:p-12 animate-fade-in" style="animation-delay: 0.4s">
-                        <h2 class="text-2xl font-bold text-white mb-2 text-center">📊 实时统计</h2>
-                    <p class="text-slate-100 text-center mb-10 text-sm">API 使用情况一览</p>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
-                            <div class="stat-card rounded-2xl p-6 text-center">
-                                <div class="stat-number" id="totalRequests">0</div>
-                                <div class="text-white text-sm mt-3 font-medium">总请求数</div>
-                            </div>
-                            <div class="stat-card rounded-2xl p-6 text-center">
-                                <div class="stat-number" id="avgReqPerSec">0</div>
-                                <div class="text-white text-sm mt-3 font-medium">请求/秒</div>
-                            </div>
-                            <div class="stat-card rounded-2xl p-6 text-center">
-                                <div class="stat-number" id="activePaths">0</div>
-                                <div class="text-white text-sm mt-3 font-medium">活跃端点</div>
-                            </div>
-                            <div class="stat-card rounded-2xl p-6 text-center">
-                                <div class="stat-number" id="uptime">0s</div>
-                                <div class="text-white text-sm mt-3 font-medium">运行时间</div>
-                            </div>
-                        </div>
+            <!-- 一言预览 -->
+            <section class="section fade-in fade-in-4">
+                <div class="hitokoto-preview">
+                    <div class="hitokoto-text" id="hitokotoText">加载中…<\/div>
+                    <div class="hitokoto-from" id="hitokotoFrom"><\/div>
+                    <div class="hitokoto-actions">
+                        <button class="btn-refresh" onclick="loadHitokoto()">换一条 ↻<\/button>
+                    <\/div>
+                <\/div>
+            </section>
 
-                        <div class="grid md:grid-cols-2 gap-8">
-                            <div class="bg-slate-700/20 rounded-2xl p-6 border border-slate-600/40">
-                                <h4 class="font-semibold text-white mb-5 flex items-center">
-                                    <span style="display: inline-block; width: 8px; height: 8px; background: #22c55e; border-radius: 50%; margin-right: 12px;"><\/span>
-                                    请求方法分布
-                                </h4>
-                                <div class="space-y-3" id="methodStats">
-                                    <div class="text-slate-100 text-sm">加载中...</div>
-                                </div>
-                            </div>
-                            
-                            <div class="bg-slate-700/20 rounded-2xl p-6 border border-slate-600/40">
-                                <h4 class="font-semibold text-white mb-5 flex items-center">
-                                    <span style="display: inline-block; width: 8px; height: 8px; background: #06b6d4; border-radius: 50%; margin-right: 12px;"><\/span>
-                                    热门端点排行
-                                </h4>
-                                <div class="space-y-3" id="pathStats">
-                                    <div class="text-slate-100 text-sm">加载中...</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </div>
-        </main>
+            <!-- 统计面板 -->
+            <section class="section fade-in fade-in-5">
+                <h2 class="section-title">实时统计</h2>
+                <p class="section-desc">API 运行状态一览<\/p>
+                <div class="stats-panel">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="totalRequests">0<\/div>
+                            <div class="stat-label">总请求数<\/div>
+                        <\/div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="avgReqPerSec">0<\/div>
+                            <div class="stat-label">请求/秒<\/div>
+                        <\/div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="activePaths">0<\/div>
+                            <div class="stat-label">活跃端点<\/div>
+                        <\/div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="uptime">0s<\/div>
+                            <div class="stat-label">运行时间<\/div>
+                        <\/div>
+                    <\/div>
+                    <div class="detail-grid">
+                        <div class="detail-box">
+                            <div class="detail-title"><span class="dot dot-cyan"><\/span> 请求方法<\/div>
+                            <div id="methodStats"><span class="bar-label">加载中…<\/span><\/div>
+                        <\/div>
+                        <div class="detail-box">
+                            <div class="detail-title"><span class="dot dot-gold"><\/span> 热门端点<\/div>
+                            <div id="pathStats"><span class="bar-label">加载中…<\/span><\/div>
+                        <\/div>
+                    <\/div>
+                <\/div>
+            </section>
+        <\/div>
 
-        <!-- 页脚 -->
-        <footer class="px-4 py-8 border-t border-slate-600/30">
-            <div class="footer-separator mb-8"><\/div>
-            <div class="max-w-6xl mx-auto text-center">
-                <div class="flex flex-col md:flex-row justify-center items-center gap-4 mb-4 text-slate-200 text-sm">
-                    <span>构建于 <a href="https://hono.dev" target="_blank" class="text-cyan-300 hover:text-cyan-200 transition">Hono</a></span>
-                    <span class="hidden md:inline">•</span>
-                    <span>部署于 <a href="https://www.docker.com" target="_blank" class="text-cyan-300 hover:text-cyan-200 transition">Docker</a></span>
-                    <span class="hidden md:inline">•</span>
-                    <span>数据源 <a href="https://hitokoto.cn" target="_blank" class="text-cyan-300 hover:text-cyan-200 transition">hitokoto.cn</a></span>
-                </div>
-                <div class="text-xs text-slate-300">
-                    © 2026 Web Tools API | MIT License
-                </div>
-            </div>
+        <!-- Footer -->
+        <footer>
+            <div class="container">
+                <div class="footer-links">
+                    <a href="https://hono.dev" target="_blank" rel="noopener">Hono<\/a>
+                    <a href="https://www.docker.com" target="_blank" rel="noopener">Docker<\/a>
+                    <a href="https://hitokoto.cn" target="_blank" rel="noopener">hitokoto.cn<\/a>
+                <\/div>
+                <div class="footer-copy">© 2026 Web Tools API · MIT License<\/div>
+            <\/div>
         </footer>
-    </div>
+    <\/div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"><\/div>
 
     <script>
-        function copyCode(el) {
-            const code = el.textContent.trim();
-            navigator.clipboard.writeText(code).then(() => {
-                const toast = document.createElement('div');
-                toast.textContent = '✓ 已复制到剪贴板';
-                toast.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(34, 197, 94, 0.9); color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; z-index: 1000;';
-                document.body.appendChild(toast);
-                setTimeout(() => toast.remove(), 2000);
+    (function() {
+        /* ── Toast ── */
+        function showToast(msg) {
+            var t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(function() { t.classList.remove('show'); }, 1600);
+        }
+
+        /* ── Copy ── */
+        window.copyCode = function(el) {
+            var body = el.querySelector('.terminal-body');
+            if (!body) return;
+            var text = body.textContent.replace(/^GET /, '/').trim();
+            navigator.clipboard.writeText(text).then(function() { showToast('✓ 已复制'); });
+        };
+
+        /* ── Hitokoto ── */
+        window.loadHitokoto = function() {
+            var textEl = document.getElementById('hitokotoText');
+            var fromEl = document.getElementById('hitokotoFrom');
+            textEl.style.opacity = '0.3';
+            fetch('/hitokoto').then(function(r) { return r.json(); }).then(function(d) {
+                textEl.style.opacity = '1';
+                textEl.textContent = d.hitokoto || '无数据';
+                fromEl.textContent = d.from ? '—— ' + d.from : '';
+            }).catch(function() {
+                textEl.style.opacity = '1';
+                textEl.textContent = '加载失败';
+                fromEl.textContent = '';
             });
+        };
+        loadHitokoto();
+
+        /* ── Stats ── */
+        function loadStats() {
+            fetch('/stats').then(function(r) { return r.json(); }).then(function(s) {
+                animateNum('totalRequests', s.totalRequests);
+                animateNum('avgReqPerSec', parseFloat(s.averageRequestsPerSecond).toFixed(2));
+                document.getElementById('activePaths').textContent = Object.keys(s.requestsByPath).length;
+                document.getElementById('uptime').textContent = s.uptime;
+                renderMethods(s);
+                renderPaths(s);
+            }).catch(function() {});
         }
 
-        async function loadStats() {
-            try {
-                const response = await fetch('/stats');
-                if (!response.ok) throw new Error('Failed to fetch stats');
-                const stats = await response.json();
-                
-                const totalEl = document.getElementById('totalRequests');
-                const avgEl = document.getElementById('avgReqPerSec');
-                
-                const finalTotal = stats.totalRequests;
-                const finalAvg = parseFloat(stats.averageRequestsPerSecond).toFixed(2);
-                
-                animateNumber(totalEl, finalTotal);
-                animateNumber(avgEl, finalAvg);
-                document.getElementById('activePaths').textContent = Object.keys(stats.requestsByPath).length;
-                document.getElementById('uptime').textContent = stats.uptime;
-                
-                renderMethodStats(stats);
-                renderPathStats(stats);
-            } catch (error) {
-                console.error('Error loading stats:', error);
-            }
+        function renderMethods(s) {
+            var el = document.getElementById('methodStats');
+            var entries = Object.entries(s.requestsByMethod);
+            if (!entries.length) { el.innerHTML = '<span class="bar-label">暂无数据<\/span>'; return; }
+            el.innerHTML = entries.map(function(e) {
+                var pct = (e[1] / s.totalRequests * 100).toFixed(1);
+                return '<div class="bar-row">' +
+                    '<span class="bar-label">' + e[0] + '<\/span>' +
+                    '<div class="bar-right">' +
+                    '<div class="bar-track"><div class="bar-fill-cyan" style="width:' + pct + '%"><\/div><\/div>' +
+                    '<span class="bar-count">' + e[1] + '<\/span>' +
+                    '<\/div><\/div>';
+            }).join('');
         }
 
-        function renderMethodStats(stats) {
-            const methodStats = document.getElementById('methodStats');
-            const methodEntries = Object.entries(stats.requestsByMethod);
-            if (methodEntries.length > 0) {
-                methodStats.innerHTML = methodEntries.map(function(item) {
-                    const method = item[0];
-                    const count = item[1];
-                    const percentage = (count / stats.totalRequests * 100).toFixed(1);
-                    return '<div style="display: flex; justify-content: space-between; align-items: center;">' +
-                        '<span style="color: #cbd5e1; font-weight: 500;">' + method + '</span>' +
-                        '<div style="display: flex; align-items: center; gap: 8px;">' +
-                        '<div style="width: 96px; height: 6px; background: #475569; border-radius: 3px; overflow: hidden;">' +
-                        '<div style="height: 100%; background: linear-gradient(to right, #22c55e, #06b6d4); width: ' + percentage + '%; transition: width 0.5s ease;"><\/div>' +
-                        '<\/div>' +
-                        '<span style="color: #86efac; font-weight: 700; font-size: 0.875rem; width: 32px;">' + count + '<\/span>' +
-                        '<\/div>' +
-                        '<\/div>';
-                }).join('');
-            }
+        function renderPaths(s) {
+            var el = document.getElementById('pathStats');
+            var top = Object.entries(s.requestsByPath).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
+            if (!top.length) { el.innerHTML = '<span class="bar-label">暂无数据<\/span>'; return; }
+            var max = top[0][1];
+            var ranks = ['🥇','🥈','🥉','4','5'];
+            el.innerHTML = top.map(function(e,i) {
+                var pct = (e[1] / max * 100).toFixed(1);
+                return '<div class="bar-row">' +
+                    '<span class="bar-label"><span class="rank-badge">' + ranks[i] + '<\/span>' + e[0] + '<\/span>' +
+                    '<div class="bar-right">' +
+                    '<div class="bar-track"><div class="bar-fill-gold" style="width:' + pct + '%"><\/div><\/div>' +
+                    '<span class="bar-count-gold">' + e[1] + '<\/span>' +
+                    '<\/div><\/div>';
+            }).join('');
         }
 
-        function renderPathStats(stats) {
-            const pathStats = document.getElementById('pathStats');
-            const topPaths = Object.entries(stats.requestsByPath)
-                .sort(function(a, b) { return b[1] - a[1]; })
-                .slice(0, 5);
-            
-            if (topPaths.length > 0) {
-                const maxCount = topPaths[0][1];
-                const badges = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
-                pathStats.innerHTML = topPaths.map(function(item, index) {
-                    const path = item[0];
-                    const count = item[1];
-                    const percentage = (count / maxCount * 100).toFixed(1);
-                    return '<div style="display: flex; justify-content: space-between; align-items: center;">' +
-                        '<div style="display: flex; align-items: center; gap: 8px;">' +
-                        '<span style="font-size: 1.125rem;">' + badges[index] + '<\/span>' +
-                        '<span style="color: #cbd5e1; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + path + '<\/span>' +
-                        '<\/div>' +
-                        '<div style="display: flex; align-items: center; gap: 8px;">' +
-                        '<div style="width: 80px; height: 6px; background: #475569; border-radius: 3px; overflow: hidden;">' +
-                        '<div style="height: 100%; background: linear-gradient(to right, #06b6d4, #0ea5e9); width: ' + percentage + '%; transition: width 0.5s ease;"><\/div>' +
-                        '<\/div>' +
-                        '<span style="color: #67e8f9; font-weight: 700; font-size: 0.875rem; width: 32px;">' + count + '<\/span>' +
-                        '<\/div>' +
-                        '<\/div>';
-                }).join('');
-            }
-        }
-
-        function animateNumber(element, target) {
-            const start = parseFloat(element.textContent) || 0;
-            const numTarget = parseFloat(target);
-            const increase = (numTarget - start) / 30;
-            let current = start;
-            let count = 0;
-            
-            const timer = setInterval(function() {
-                current += increase;
-                count++;
-                if (count >= 30) {
-                    element.textContent = typeof target === 'string' ? target : Math.round(numTarget);
+        function animateNum(id, target) {
+            var el = document.getElementById(id);
+            var start = parseFloat(el.textContent) || 0;
+            var end = parseFloat(target);
+            var diff = (end - start) / 20;
+            var i = 0;
+            var timer = setInterval(function() {
+                start += diff; i++;
+                if (i >= 20) {
+                    el.textContent = typeof target === 'string' && target.indexOf('.') > -1 ? parseFloat(target).toFixed(2) : Math.round(end);
                     clearInterval(timer);
                 } else {
-                    element.textContent = typeof target === 'string' && target.includes('.') ? current.toFixed(2) : Math.round(current);
+                    el.textContent = typeof target === 'string' && target.indexOf('.') > -1 ? start.toFixed(2) : Math.round(start);
                 }
-            }, 16);
+            }, 20);
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            loadStats();
-            setInterval(loadStats, 2000);
-        });
-    </script>
+        loadStats();
+        setInterval(loadStats, 3000);
+    })();
+    <\/script>
 </body>
 </html>`;
 
