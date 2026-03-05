@@ -41,7 +41,10 @@ README.md
 LICENSE
 CHANGELOG.md
 docs/
-public/
+
+# 原始 sentences 分文件和压缩包（容器使用 compact 格式）
+src/data/sentences/
+src/data/sentences.tar.gz
 
 # Environment
 .env.local

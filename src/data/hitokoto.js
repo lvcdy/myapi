@@ -1,14 +1,22 @@
 /**
  * 一言数据加载器 - 使用本地语句包
  * 数据来源: https://github.com/hitokoto-osc/sentences-bundle
+ * 
+ * 支持两种加载模式:
+ * 1. compact 模式: 从 sentences.compact.json 单文件加载（容器/生产环境，更快）
+ * 2. 分文件模式: 从 sentences/*.json 逐个加载（开发环境回退）
  */
 
-import { readFileSync } from 'fs'
+import { readFileSync, existsSync } from 'fs'
 import { dirname, join } from 'path'
 import { fileURLToPath } from 'url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
+const COMPACT_FILE = join(__dirname, 'sentences.compact.json')
 const SENTENCES_DIR = join(__dirname, 'sentences')
+
+// compact 字段 → 标准字段映射
+const FIELD_MAP = { i: 'id', u: 'uuid', h: 'hitokoto', t: 'type', f: 'from', w: 'from_who', c: 'creator', l: 'length' }
 
 // 类型定义
 export const hitokotoTypes = {
@@ -34,13 +42,46 @@ let hitokotoCache = {
 }
 
 /**
- * 加载所有一言数据（同步加载，启动时执行）
+ * 将 compact 格式记录展开为标准格式
  */
-function loadAllData() {
-    if (hitokotoCache.loaded) return
+function expandCompact(item) {
+    const result = {}
+    for (const [short, full] of Object.entries(FIELD_MAP)) {
+        result[full] = item[short] ?? null
+    }
+    return result
+}
 
-    console.log('📥 正在加载本地一言数据...')
+/**
+ * 从 compact 单文件加载（更快，单次 IO + 单次 JSON.parse）
+ */
+function loadFromCompact() {
+    const content = readFileSync(COMPACT_FILE, 'utf-8')
+    const { sentences } = JSON.parse(content)
 
+    const allData = []
+    const byType = {}
+
+    // 预初始化类型桶
+    for (const type of Object.keys(hitokotoTypes)) {
+        byType[type] = []
+    }
+
+    for (const raw of sentences) {
+        const item = expandCompact(raw)
+        allData.push(item)
+        if (byType[item.type]) {
+            byType[item.type].push(item)
+        }
+    }
+
+    return { allData, byType }
+}
+
+/**
+ * 从分散的 JSON 文件逐个加载（回退方案）
+ */
+function loadFromFiles() {
     const allData = []
     const byType = {}
 
@@ -57,13 +98,26 @@ function loadAllData() {
         }
     }
 
-    hitokotoCache = {
-        data: allData,
-        byType,
-        loaded: true
-    }
+    return { allData, byType }
+}
 
-    console.log(`✅ 一言数据加载完成，共 ${allData.length} 条`)
+/**
+ * 加载所有一言数据（同步加载，启动时执行）
+ */
+function loadAllData() {
+    if (hitokotoCache.loaded) return
+
+    const start = performance.now()
+    console.log('📥 正在加载本地一言数据...')
+
+    // 优先使用 compact 模式（单文件 IO，启动更快）
+    const useCompact = existsSync(COMPACT_FILE)
+    const { allData, byType } = useCompact ? loadFromCompact() : loadFromFiles()
+
+    hitokotoCache = { data: allData, byType, loaded: true }
+
+    const ms = (performance.now() - start).toFixed(1)
+    console.log(`✅ 一言数据加载完成，共 ${allData.length} 条 (${useCompact ? 'compact' : 'files'} 模式, ${ms}ms)`)
 }
 
 // 启动时加载数据

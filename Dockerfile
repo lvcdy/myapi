@@ -1,26 +1,22 @@
-# MyAPI Dockerfile - 版本 1.2.0
-# 超轻量级优化版 - 最小化镜像大小和安全性增强
+# MyAPI Dockerfile - 版本 2.0.0
+# 超轻量级优化版 - 最小化镜像大小和启动时间
 
-# 构建阶段
+# ── 构建阶段: 仅安装生产依赖 ──
 FROM node:25-alpine AS builder
-
-ENV PNPM_HOME=/root/.pnpm
-ENV PATH=$PNPM_HOME:$PATH
 
 WORKDIR /app
 
 # 安装 pnpm 并清理 npm 缓存
-RUN npm install -g pnpm && \
-    npm cache clean --force
+RUN npm install -g pnpm --no-fund --no-audit && npm cache clean --force
 
-# 复制依赖声明文件
 COPY package.json pnpm-lock.yaml ./
 
-# 安装生产依赖（严格冻结模式）
+# 安装生产依赖，跳过脚本和可选依赖
 RUN pnpm install --prod --frozen-lockfile --ignore-scripts && \
-    pnpm store prune
+    pnpm store prune && \
+    rm -rf /root/.cache /root/.local/share/pnpm/store
 
-# 最终运行时阶段
+# ── 运行时阶段: 极简镜像 ──
 FROM node:25-alpine
 
 ENV NODE_ENV=production \
@@ -32,25 +28,27 @@ WORKDIR /app
 # 创建非 root 用户
 RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
 
-# 从构建阶段复制依赖和应用代码
+# 复制生产依赖
 COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nodejs:nodejs /app/package.json ./package.json
+
+# 复制应用代码
 COPY --chown=nodejs:nodejs index.js ./
-COPY --chown=nodejs:nodejs src ./src/
 COPY --chown=nodejs:nodejs public ./public/
 
-# 切换到非 root 用户
+# 复制 src（.dockerignore 已排除 src/data/sentences/，仅含 compact 格式）
+COPY --chown=nodejs:nodejs src ./src/
+
 USER nodejs
 
 EXPOSE 3000
 
-# 标签镜像版本
-LABEL version="1.1.0"
-LABEL maintainer="myapi"
-LABEL description="一言 API - 提供随机句子和可用性检测"
+LABEL version="2.0.0" \
+    maintainer="myapi" \
+    description="一言 API - 提供随机句子和可用性检测"
 
-# 健康检查
-HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:3000/health', (r) => {if(r.statusCode !== 200) throw new Error(r.statusCode)})"
+# 健康检查: 使用 wget 替代 node（避免为检查启动额外 Node 进程）
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+    CMD wget -qO /dev/null http://localhost:3000/health || exit 1
 
 CMD ["node", "index.js"]
