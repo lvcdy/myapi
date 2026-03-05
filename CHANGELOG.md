@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/lvcdy/myapi/compare/v1.6.0...v1.7.0) (2026-03-05)
+
+
+### Features
+
+* enhance Docker configuration and optimize health checks ([0e5cbe4](https://github.com/lvcdy/myapi/commit/0e5cbe4a19aa93fa17df72971ba1d2e230ca8d22))
+
 # [1.6.0](https://github.com/lvcdy/myapi/compare/v1.5.1...v1.6.0) (2026-03-05)
 
 
