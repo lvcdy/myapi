@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/lvcdy/myapi/compare/v1.5.0...v1.5.1) (2026-03-04)
+
+
+### Bug Fixes
+
+* 更新健康检查配置，调整超时和启动周期 ([9bdf890](https://github.com/lvcdy/myapi/commit/9bdf890ad5da477e8a0763c8e712feff205ddc79))
+
 # [1.5.0](https://github.com/lvcdy/myapi/compare/v1.4.0...v1.5.0) (2026-03-04)
 
 
