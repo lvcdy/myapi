@@ -5,20 +5,6 @@
 import { ERROR_CODE_MAP } from '../constants/index.js'
 
 /**
- * 构建成功响应
- * @param {Object} data - 响应数据
- * @param {number} code - HTTP 状态码
- * @returns {Object} 响应对象
- */
-export function successResponse(data, code = 200) {
-    return {
-        data,
-        code,
-        timestamp: new Date().toISOString()
-    }
-}
-
-/**
  * 构建错误响应
  * @param {string|Error} error - 错误信息或错误对象
  * @param {number} code - HTTP 状态码

@@ -2,7 +2,7 @@
 # 超轻量级优化版 - 最小化镜像大小和启动时间
 
 # ── 构建阶段: 仅安装生产依赖 ──
-FROM node:25-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -17,7 +17,7 @@ RUN pnpm install --prod --frozen-lockfile --ignore-scripts && \
     rm -rf /root/.cache /root/.local/share/pnpm/store
 
 # ── 运行时阶段: 极简镜像 ──
-FROM node:25-alpine
+FROM node:22-alpine
 
 ENV NODE_ENV=production \
     NODE_OPTIONS="--max-old-space-size=64" \

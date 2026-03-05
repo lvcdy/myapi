@@ -31,7 +31,7 @@ describe('应用基础测试', () => {
         expect(data.status || data.code).toBeDefined()
     })
 
-    it('GET /stats 应该返回统计数据', async () => {
+    it('GET /stats 无认证应该返回统计（开发环境）', async () => {
         const res = await app.fetch(new Request('http://localhost/stats'))
         expect(res.status).toBe(200)
         const data = await res.json()
@@ -48,10 +48,41 @@ describe('应用基础测试', () => {
         expect(res.status).toBe(404)
     })
 
+    it('尾部斜杠应该 301 重定向到无斜杠路径', async () => {
+        const res = await app.fetch(new Request('http://localhost/health/'), { redirect: 'manual' })
+        expect(res.status).toBe(301)
+        expect(res.headers.get('location')).toContain('/health')
+    })
+
+    it('响应应该包含 ETag 头', async () => {
+        const res = await app.fetch(new Request('http://localhost/health'))
+        expect(res.headers.get('etag')).toBeDefined()
+    })
+
+    it('响应应该包含 X-Request-Id 头', async () => {
+        const res = await app.fetch(new Request('http://localhost/health'))
+        expect(res.headers.get('x-request-id')).toBeTruthy()
+    })
+
     it('响应应该包含安全头', async () => {
         const res = await app.fetch(new Request('http://localhost/'))
         expect(res.headers.get('strict-transport-security')).toBeDefined()
         expect(res.headers.get('cross-origin-resource-policy')).toBeDefined()
         expect(res.headers.get('access-control-allow-origin')).toBe('*')
+    })
+
+    it('响应应该包含限流头', async () => {
+        const res = await app.fetch(new Request('http://localhost/health'))
+        expect(res.headers.get('x-ratelimit-limit')).toBeDefined()
+        expect(res.headers.get('x-ratelimit-remaining')).toBeDefined()
+        expect(res.headers.get('x-ratelimit-reset')).toBeDefined()
+    })
+
+    it('全局错误处理不应泄露内部信息', async () => {
+        const res = await app.fetch(new Request('http://localhost/notfound'))
+        const data = await res.json()
+        expect(data.error).toBe('Not Found')
+        expect(data.message).toBeUndefined()
+        expect(data.stack).toBeUndefined()
     })
 })

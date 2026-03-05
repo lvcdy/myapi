@@ -38,6 +38,15 @@ describe('API 处理器测试', () => {
             expect(res.status).toBe(200)
             expect(res.headers.get('content-type')).toContain('text/plain')
         })
+
+        it('无匹配结果应该返回 404', async () => {
+            const res = await app.fetch(
+                new Request('http://localhost/hitokoto?c=a&min_length=999999')
+            )
+            expect(res.status).toBe(404)
+            const data = await res.json()
+            expect(data.error).toContain('no matching')
+        })
     })
 
     describe('Favicon 图标获取', () => {
@@ -51,6 +60,22 @@ describe('API 处理器测试', () => {
 
         it('缺少url参数应该返回 400 BAD REQUEST', async () => {
             const res = await app.fetch(new Request('http://localhost/favicon'))
+            expect(res.status).toBe(400)
+        })
+    })
+
+    describe('URL 协议校验', () => {
+        it('javascript: 协议应该被拒绝', async () => {
+            const res = await app.fetch(
+                new Request('http://localhost/favicon?url=javascript:alert(1)')
+            )
+            expect(res.status).toBe(400)
+        })
+
+        it('ftp: 协议应该被拒绝', async () => {
+            const res = await app.fetch(
+                new Request('http://localhost/uptime?url=ftp://example.com')
+            )
             expect(res.status).toBe(400)
         })
     })

@@ -14,11 +14,6 @@ export const CORS_CONFIG = {
     allowHeaders: ['Content-Type']
 }
 
-export const LOG_LEVELS = {
-    INFO: 'ℹ️',
-    ERROR: '❌'
-}
-
 export const ERROR_CODE_MAP = {
     ENOTFOUND: { code: 400, message: 'DNS resolution failed' },
     ECONNREFUSED: { code: 503, message: 'Connection refused' },

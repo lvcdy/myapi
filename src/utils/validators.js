@@ -1,13 +1,16 @@
+/**
+ * 校验 URL 格式，仅允许 http/https 协议
+ * @param {string} url
+ * @returns {boolean}
+ */
 export const isValidUrl = (url) => {
     try {
-        new URL(url)
-        return true
+        const parsed = new URL(url)
+        return parsed.protocol === 'http:' || parsed.protocol === 'https:'
     } catch {
         return false
     }
 }
-
-export const extractDomain = (url) => new URL(url).hostname
 
 /**
  * 私有/内网 IP 段正则

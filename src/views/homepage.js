@@ -2,8 +2,6 @@
  * 主页 HTML 视图 - 零外部依赖，纯 CSS 现代设计
  */
 
-import { html } from 'hono/html'
-
 let cachedHtml = null
 
 export function getHomepageHtml() {
@@ -603,6 +601,6 @@ export function getHomepageHtml() {
 </body>
 </html>`;
 
-    cachedHtml = html(htmlStr);
+    cachedHtml = htmlStr;
     return cachedHtml;
 }

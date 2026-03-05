@@ -3,8 +3,8 @@ import { handleUptime } from '../handlers/uptimeHandler.js'
 import { handleFavicon } from '../handlers/faviconHandler.js'
 import { handleFaviconSvg, handleFaviconIco, handleAppleTouchIcon } from '../handlers/projectFaviconHandler.js'
 import { handleHitokoto, handleHitokotoTypes } from '../handlers/hitokotoHandler.js'
+import { handleStats } from '../handlers/statsHandler.js'
 import { getHomepageHtml } from '../views/homepage.js'
-import { getRequestStats } from '../middleware/requestCounter.js'
 
 export const routes = [
     { method: 'GET', path: '/', handler: (c) => c.html(getHomepageHtml()), description: '主页' },
@@ -12,7 +12,7 @@ export const routes = [
     { method: 'GET', path: '/favicon.ico', handler: handleFaviconIco, description: 'Favicon ICO' },
     { method: 'GET', path: '/apple-touch-icon.png', handler: handleAppleTouchIcon, description: 'Apple Icon' },
     { method: 'GET', path: '/health', handler: handleHealth, description: '健康检查' },
-    { method: 'GET', path: '/stats', handler: (c) => c.json(getRequestStats()), description: '统计' },
+    { method: 'GET', path: '/stats', handler: handleStats, description: '统计（需认证）' },
     { method: 'GET', path: '/uptime', handler: handleUptime, description: '可用性检测' },
     { method: 'GET', path: '/favicon', handler: handleFavicon, description: '网站图标' },
     { method: 'GET', path: '/hitokoto', handler: handleHitokoto, description: '一言' },
@@ -36,25 +36,13 @@ export function registerRoutes(app) {
         return c.json({ error: 'Not Found' }, 404)
     })
 
-    // 全局错误处理
+    // 全局错误处理 — 仅暴露安全信息，内部细节写日志
     app.onError((err, c) => {
-        console.error('❌ 应用错误:', err.message)
+        console.error('❌ 应用错误:', err.stack || err.message)
+        // 超时错误保持 504
+        const status = err.status || 500
         return c.json({
-            error: 'Internal Server Error',
-            message: err.message,
-            timestamp: new Date().toISOString()
-        }, 500)
+            error: status === 504 ? 'Gateway Timeout' : 'Internal Server Error'
+        }, status)
     })
-}
-
-/**
- * 获取路由列表（用于文档或调试）
- * @returns {Array} 路由列表
- */
-export function getRoutesList() {
-    return routes.map(r => ({
-        method: r.method,
-        path: r.path,
-        description: r.description
-    }))
 }

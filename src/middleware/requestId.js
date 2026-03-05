@@ -1,12 +1,5 @@
-import { randomUUID } from 'crypto'
-
-const HEADER = 'X-Request-ID'
-
-export const createRequestIdMiddleware = () => async (c, next) => {
-    const id = c.req.header(HEADER) || randomUUID()
-    c.set(HEADER, id)
-    c.header(HEADER, id)
-    await next()
-}
-
-export const getRequestId = (c) => c.get(HEADER) || 'unknown'
+/**
+ * Request ID 辅助工具
+ * 中间件已由 Hono 内置 requestId 接管（见 app.js），此处仅保留读取函数
+ */
+export const getRequestId = (c) => c.get('requestId') || 'unknown'

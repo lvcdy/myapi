@@ -127,12 +127,9 @@ export async function handleFavicon(c) {
             if (faviconUrl) {
                 const image = await downloadImage(faviconUrl, timeout)
                 if (image) {
-                    return new Response(image.data, {
-                        status: 200,
-                        headers: {
-                            'Content-Type': image.contentType,
-                            'Cache-Control': 'public, max-age=86400'
-                        }
+                    return c.body(image.data, 200, {
+                        'Content-Type': image.contentType,
+                        'Cache-Control': 'public, max-age=86400'
                     })
                 }
             }
@@ -144,12 +141,9 @@ export async function handleFavicon(c) {
         const defaultFaviconUrl = `${base.origin}/favicon.ico`
         const image = await downloadImage(defaultFaviconUrl, timeout)
         if (image) {
-            return new Response(image.data, {
-                status: 200,
-                headers: {
-                    'Content-Type': image.contentType,
-                    'Cache-Control': 'public, max-age=86400'
-                }
+            return c.body(image.data, 200, {
+                'Content-Type': image.contentType,
+                'Cache-Control': 'public, max-age=86400'
             })
         }
 

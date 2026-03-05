@@ -25,6 +25,23 @@ function startServer(port = config.PORT, maxAttempts = 5) {
         }
     })
 
+    // 优雅关停 — 收到终止信号后停止接受新连接，等待进行中请求完成
+    const shutdown = (signal) => {
+        console.log(`\n🛑 收到 ${signal}，正在优雅关停...`)
+        server.close(() => {
+            console.log('✅ 服务器已关闭')
+            process.exit(0)
+        })
+        // 如果 5 秒内无法关闭，强制退出
+        setTimeout(() => {
+            console.error('⚠️ 强制退出（超时 5s）')
+            process.exit(1)
+        }, 5000).unref()
+    }
+
+    process.on('SIGTERM', () => shutdown('SIGTERM'))
+    process.on('SIGINT', () => shutdown('SIGINT'))
+
     return server
 }
 

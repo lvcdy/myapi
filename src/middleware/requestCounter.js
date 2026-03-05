@@ -67,15 +67,4 @@ export function getRequestStats() {
     }
 }
 
-/**
- * 重置统计数据
- */
-export function resetRequestStats() {
-    stats = {
-        totalRequests: 0,
-        requestsByMethod: {},
-        requestsByPath: {},
-        requestsByStatus: {},
-        startTime: Date.now()
-    }
-}
+
