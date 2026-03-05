@@ -1,3 +1,16 @@
+# [1.8.0](https://github.com/lvcdy/myapi/compare/v1.7.0...v1.8.0) (2026-03-05)
+
+
+### Bug Fixes
+
+* **logger:** improve error logging for production environment ([79c5d92](https://github.com/lvcdy/myapi/commit/79c5d92ddcf513c36b9088d3cc0429770302733c))
+
+
+### Features
+
+* **faviconHandler:** enhance caching mechanism and improve favicon fetching logic ([b9152fa](https://github.com/lvcdy/myapi/commit/b9152fa930c62522c81c223f15a2346839dec6e9))
+* **rateLimiter:** enhance rate limiting for /favicon and /uptime endpoints with fallback response ([bea70f3](https://github.com/lvcdy/myapi/commit/bea70f375327e507eacf6c8d0dc45a58219e7a47))
+
 # [1.7.0](https://github.com/lvcdy/myapi/compare/v1.6.0...v1.7.0) (2026-03-05)
 
 
