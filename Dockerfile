@@ -37,6 +37,7 @@ COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nodejs:nodejs /app/package.json ./package.json
 COPY --chown=nodejs:nodejs index.js ./
 COPY --chown=nodejs:nodejs src ./src/
+COPY --chown=nodejs:nodejs public ./public/
 
 # 切换到非 root 用户
 USER nodejs

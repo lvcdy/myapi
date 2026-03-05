@@ -450,7 +450,7 @@ export function getHomepageHtml() {
                         <\/div>
                         <div class="stat-item">
                             <div class="stat-value" id="activePaths">0<\/div>
-                            <div class="stat-label">活跃端点<\/div>
+                            <div class="stat-label">监控端点<\/div>
                         <\/div>
                         <div class="stat-item">
                             <div class="stat-value" id="uptime">0s<\/div>
@@ -463,7 +463,7 @@ export function getHomepageHtml() {
                             <div id="methodStats"><span class="bar-label">加载中…<\/span><\/div>
                         <\/div>
                         <div class="detail-box">
-                            <div class="detail-title"><span class="dot dot-gold"><\/span> 热门端点<\/div>
+                            <div class="detail-title"><span class="dot dot-gold"><\/span> 接口调用量<\/div>
                             <div id="pathStats"><span class="bar-label">加载中…<\/span><\/div>
                         <\/div>
                     <\/div>
@@ -523,14 +523,27 @@ export function getHomepageHtml() {
         loadHitokoto();
 
         /* ── Stats ── */
+        var TRACKED_PATHS = ['/uptime', '/favicon', '/hitokoto'];
+
         function loadStats() {
             fetch('/stats').then(function(r) { return r.json(); }).then(function(s) {
-                animateNum('totalRequests', s.totalRequests);
-                animateNum('avgReqPerSec', parseFloat(s.averageRequestsPerSecond).toFixed(2));
-                document.getElementById('activePaths').textContent = Object.keys(s.requestsByPath).length;
+                var filteredPaths = {};
+                var filteredTotal = 0;
+                TRACKED_PATHS.forEach(function(p) {
+                    if (s.requestsByPath[p]) {
+                        filteredPaths[p] = s.requestsByPath[p];
+                        filteredTotal += s.requestsByPath[p];
+                    }
+                });
+                var uptimeSec = parseFloat(s.uptime);
+                var filteredAvg = uptimeSec > 0 ? (filteredTotal / uptimeSec).toFixed(2) : '0.00';
+                animateNum('totalRequests', filteredTotal);
+                animateNum('avgReqPerSec', filteredAvg);
+                var activeCount = Object.keys(filteredPaths).length;
+                document.getElementById('activePaths').textContent = activeCount + ' / ' + TRACKED_PATHS.length;
                 document.getElementById('uptime').textContent = s.uptime;
                 renderMethods(s);
-                renderPaths(s);
+                renderPaths(filteredPaths);
             }).catch(function() {});
         }
 
@@ -549,16 +562,16 @@ export function getHomepageHtml() {
             }).join('');
         }
 
-        function renderPaths(s) {
+        function renderPaths(filteredPaths) {
             var el = document.getElementById('pathStats');
-            var top = Object.entries(s.requestsByPath).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
-            if (!top.length) { el.innerHTML = '<span class="bar-label">暂无数据<\/span>'; return; }
-            var max = top[0][1];
-            var ranks = ['🥇','🥈','🥉','4','5'];
-            el.innerHTML = top.map(function(e,i) {
+            var icons = {'/uptime': '📡', '/favicon': '🖼️', '/hitokoto': '💬'};
+            var entries = TRACKED_PATHS.map(function(p) { return [p, filteredPaths[p] || 0]; });
+            entries.sort(function(a,b) { return b[1] - a[1]; });
+            var max = entries[0][1] || 1;
+            el.innerHTML = entries.map(function(e) {
                 var pct = (e[1] / max * 100).toFixed(1);
                 return '<div class="bar-row">' +
-                    '<span class="bar-label"><span class="rank-badge">' + ranks[i] + '<\/span>' + e[0] + '<\/span>' +
+                    '<span class="bar-label"><span class="rank-badge">' + (icons[e[0]] || '') + '<\/span>' + e[0] + '<\/span>' +
                     '<div class="bar-right">' +
                     '<div class="bar-track"><div class="bar-fill-gold" style="width:' + pct + '%"><\/div><\/div>' +
                     '<span class="bar-count-gold">' + e[1] + '<\/span>' +

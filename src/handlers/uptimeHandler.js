@@ -3,7 +3,7 @@
  */
 
 import axios from 'axios'
-import { isValidUrl } from '../utils/validators.js'
+import { isValidUrl, isPrivateUrl } from '../utils/validators.js'
 import { mapErrorResponse } from '../utils/response.js'
 import { createHttpConfig } from '../utils/httpClient.js'
 import { config } from '../config.js'
@@ -24,6 +24,10 @@ export async function handleUptime(c) {
 
     if (!isValidUrl(url)) {
         return c.json({ error: RESPONSE_MESSAGES.INVALID_URL }, 400)
+    }
+
+    if (isPrivateUrl(url)) {
+        return c.json({ error: 'private/internal addresses are not allowed' }, 403)
     }
 
     const start = Date.now()

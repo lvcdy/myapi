@@ -3,10 +3,34 @@
  */
 
 import axios from 'axios'
-import { isValidUrl } from '../utils/validators.js'
+import { isValidUrl, isPrivateUrl } from '../utils/validators.js'
 import { createHttpConfig, createImageHttpConfig, getMimeTypeFromUrl, isImageResponse } from '../utils/httpClient.js'
 import { config } from '../config.js'
 import { RESPONSE_MESSAGES } from '../constants/index.js'
+
+// 负面缓存：缓存获取失败的 URL，避免重复请求
+const failedCache = new Map()
+const FAILED_CACHE_TTL = 10 * 60 * 1000 // 10 分钟
+const MAX_FAILED_CACHE_SIZE = 1000
+
+function isFailedCached(url) {
+    const entry = failedCache.get(url)
+    if (!entry) return false
+    if (Date.now() - entry > FAILED_CACHE_TTL) {
+        failedCache.delete(url)
+        return false
+    }
+    return true
+}
+
+function cacheFailedUrl(url) {
+    // 防止缓存无限增长
+    if (failedCache.size >= MAX_FAILED_CACHE_SIZE) {
+        const oldest = failedCache.keys().next().value
+        failedCache.delete(oldest)
+    }
+    failedCache.set(url, Date.now())
+}
 
 /**
  * 从 HTML 中提取 favicon URL
@@ -28,16 +52,10 @@ function extractFaviconFromHtml(html, baseUrl) {
     for (const pattern of patterns) {
         const match = html.match(pattern)
         if (match && match[1]) {
-            const href = match[1]
-            // 处理相对路径
-            if (href.startsWith('//')) {
-                return `${base.protocol}${href}`
-            } else if (href.startsWith('/')) {
-                return `${base.origin}${href}`
-            } else if (href.startsWith('http')) {
-                return href
-            } else {
-                return `${base.origin}/${href}`
+            try {
+                return new URL(match[1], baseUrl).href
+            } catch {
+                continue
             }
         }
     }
@@ -85,6 +103,15 @@ export async function handleFavicon(c) {
         return c.json({ error: RESPONSE_MESSAGES.INVALID_URL }, 400)
     }
 
+    if (isPrivateUrl(url)) {
+        return c.json({ error: 'private/internal addresses are not allowed' }, 403)
+    }
+
+    // 检查负面缓存
+    if (isFailedCached(url)) {
+        return c.json({ error: 'favicon not found (cached)' }, 404)
+    }
+
     try {
         const base = new URL(url)
         const timeout = config.TIMEOUT
@@ -126,8 +153,10 @@ export async function handleFavicon(c) {
             })
         }
 
+        cacheFailedUrl(url)
         return c.json({ error: 'favicon not found' }, 404)
     } catch (err) {
+        cacheFailedUrl(url)
         return c.json({ error: 'failed to fetch favicon', message: err.message }, 500)
     }
 }

@@ -55,12 +55,23 @@ describe('API 处理器测试', () => {
         })
     })
 
-    describe('项目Favicon获取', () => {
-        it('GET /project/favicon?url=https://github.com/user/repo 应该可用', async () => {
+    describe('SSRF 防护', () => {
+        it('GET /favicon?url=http://127.0.0.1 应该拒绝内网地址', async () => {
             const res = await app.fetch(
-                new Request('http://localhost/project/favicon?url=https://github.com/torvalds/linux')
+                new Request('http://localhost/favicon?url=http://127.0.0.1')
             )
-            expect([200, 301, 302, 304, 404]).toContain(res.status)
+            expect(res.status).toBe(403)
+            const data = await res.json()
+            expect(data.error).toContain('private')
+        })
+
+        it('GET /uptime?url=http://192.168.1.1 应该拒绝内网地址', async () => {
+            const res = await app.fetch(
+                new Request('http://localhost/uptime?url=http://192.168.1.1')
+            )
+            expect(res.status).toBe(403)
+            const data = await res.json()
+            expect(data.error).toContain('private')
         })
     })
 
