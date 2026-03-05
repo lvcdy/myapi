@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/lvcdy/myapi/compare/v1.5.1...v1.6.0) (2026-03-05)
+
+
+### Features
+
+* 增加私有地址检查，优化 favicon 和可用性检测处理器 ([00f4a15](https://github.com/lvcdy/myapi/commit/00f4a150f30007577082dad40c817a157f6d8ec9))
+
 ## [1.5.1](https://github.com/lvcdy/myapi/compare/v1.5.0...v1.5.1) (2026-03-04)
 
 
