@@ -11,7 +11,7 @@
  * @param {number} options.cleanupInterval - 过期记录清理间隔（毫秒）
  * @returns {Function} Hono 中间件
  */
-export function createRateLimiter({ windowMs = 60_000, max = 60, cleanupInterval = 60_000 } = {}) {
+export function createRateLimiter({ windowMs = 60_000, max = 60, cleanupInterval = 60_000, onRateLimited } = {}) {
     const hits = new Map() // key → { count, resetTime }
 
     // 定时清理过期记录，防止内存泄漏
@@ -47,6 +47,9 @@ export function createRateLimiter({ windowMs = 60_000, max = 60, cleanupInterval
 
         if (entry.count > max) {
             c.header('Retry-After', String(Math.ceil((entry.resetTime - now) / 1000)))
+            if (typeof onRateLimited === 'function') {
+                return onRateLimited(c)
+            }
             return c.json({ error: 'Too Many Requests' }, 429)
         }
 

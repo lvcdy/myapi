@@ -27,12 +27,21 @@ export const createApp = () => {
     app.use(etag({ weak: true }))                // Weak ETag，支持 304 Not Modified
     app.use(timeout(config.TIMEOUT))             // 请求级超时保护
 
-    // 全局限流: 每 IP 每分钟 120 次
-    app.use(createRateLimiter({ windowMs: 60_000, max: 120 }))
+    // 全局限流: 每 IP 每分钟 300 次
+    app.use(createRateLimiter({ windowMs: 60_000, max: 300 }))
 
     // 代理端点严格限流（防止滥用）
-    app.use('/favicon', createRateLimiter({ windowMs: 60_000, max: 100 }))
-    app.use('/uptime', createRateLimiter({ windowMs: 60_000, max: 200 }))
+    // 限流时返回默认占位图标，避免浏览器因收到 JSON 而无法显示图标
+    const FALLBACK_FAVICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16"><rect width="16" height="16" rx="3" fill="#e2e8f0"/><text x="8" y="12" text-anchor="middle" font-size="11" fill="#94a3b8">?</text></svg>'
+    app.use('/favicon', createRateLimiter({
+        windowMs: 60_000,
+        max: 300,
+        onRateLimited: (c) => c.body(FALLBACK_FAVICON, 429, {
+            'Content-Type': 'image/svg+xml; charset=utf-8',
+            'Cache-Control': 'no-cache'
+        })
+    }))
+    app.use('/uptime', createRateLimiter({ windowMs: 60_000, max: 300 }))
 
     // 业务中间件
     app.use(createRequestCounter())
