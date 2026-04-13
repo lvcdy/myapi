@@ -1,3 +1,10 @@
+## [1.8.1](https://github.com/lvcdy/myapi/compare/v1.8.0...v1.8.1) (2026-04-13)
+
+
+### Bug Fixes
+
+* **statsHandler:** update access control description and remove production restriction for stats endpoint ([8a5b23c](https://github.com/lvcdy/myapi/commit/8a5b23c015d9201ab624d37cd86ea6a44ee1dab5))
+
 # [1.8.0](https://github.com/lvcdy/myapi/compare/v1.7.0...v1.8.0) (2026-03-05)
 
 
