@@ -523,8 +523,19 @@ export function getHomepageHtml() {
         /* ── Stats ── */
         var TRACKED_PATHS = ['/uptime', '/favicon', '/hitokoto'];
 
+        function renderStatsError(msg) {
+            document.getElementById('methodStats').innerHTML = '<span class="bar-label">' + msg + '<\/span>';
+            document.getElementById('pathStats').innerHTML = '<span class="bar-label">' + msg + '<\/span>';
+            document.getElementById('activePaths').textContent = '-';
+        }
+
         function loadStats() {
-            fetch('/stats').then(function(r) { return r.json(); }).then(function(s) {
+            fetch('/stats').then(function(r) {
+                if (!r.ok) {
+                    throw new Error('stats_' + r.status);
+                }
+                return r.json();
+            }).then(function(s) {
                 var filteredPaths = {};
                 var filteredTotal = 0;
                 TRACKED_PATHS.forEach(function(p) {
@@ -542,7 +553,17 @@ export function getHomepageHtml() {
                 document.getElementById('uptime').textContent = s.uptime;
                 renderMethods(s);
                 renderPaths(filteredPaths);
-            }).catch(function() {});
+            }).catch(function(err) {
+                if (err && err.message === 'stats_401') {
+                    renderStatsError('统计已受保护（401）');
+                    return;
+                }
+                if (err && err.message === 'stats_403') {
+                    renderStatsError('统计不可访问（403）');
+                    return;
+                }
+                renderStatsError('统计加载失败');
+            });
         }
 
         function renderMethods(s) {
