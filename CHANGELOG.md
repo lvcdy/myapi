@@ -1,3 +1,16 @@
+# [1.9.0](https://github.com/lvcdy/myapi/compare/v1.8.0...v1.9.0) (2026-04-13)
+
+
+### Bug Fixes
+
+* **homepage:** adjust indentation in escapeHtml function for better readability ([c4a7602](https://github.com/lvcdy/myapi/commit/c4a76029d8a65ba805ea353faf91804df6df35b3))
+* **statsHandler:** update access control description and remove production restriction for stats endpoint ([8a5b23c](https://github.com/lvcdy/myapi/commit/8a5b23c015d9201ab624d37cd86ea6a44ee1dab5))
+
+
+### Features
+
+* **validation:** add URL validation utility to ensure public addresses ([83954c5](https://github.com/lvcdy/myapi/commit/83954c5a76bc9a32d6e785a85dadfa56d2d82304))
+
 # [1.8.0](https://github.com/lvcdy/myapi/compare/v1.7.0...v1.8.0) (2026-03-05)
 
 
