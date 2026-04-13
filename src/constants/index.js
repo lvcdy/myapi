@@ -32,5 +32,6 @@ export const MIME_TYPES = {
 
 export const RESPONSE_MESSAGES = {
     INVALID_URL: 'invalid url format',
-    URL_REQUIRED: 'url is required'
+    URL_REQUIRED: 'url is required',
+    PRIVATE_URL_NOT_ALLOWED: 'private/internal addresses are not allowed'
 }

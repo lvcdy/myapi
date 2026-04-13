@@ -4,8 +4,40 @@
 
 let cachedHtml = null
 
-export function getHomepageHtml() {
+function escapeHtml(value = '') {
+    return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;')
+}
+
+export function getHomepageHtml(metadata = {}) {
     if (cachedHtml) return cachedHtml
+
+    const defaultApiRoutes = [
+        { method: 'GET', path: '/health', description: '健康检查' },
+        { method: 'GET', path: '/stats', description: '统计（需认证）' },
+        { method: 'GET', path: '/uptime', description: '可用性检测' },
+        { method: 'GET', path: '/favicon', description: '网站图标' },
+        { method: 'GET', path: '/hitokoto', description: '一言' },
+        { method: 'GET', path: '/hitokoto/types', description: '一言类型' }
+    ]
+
+    const apiRoutes = Array.isArray(metadata.apiRoutes) && metadata.apiRoutes.length > 0
+        ? metadata.apiRoutes
+        : defaultApiRoutes
+    const trackedPaths = Array.isArray(metadata.trackedPaths) && metadata.trackedPaths.length > 0
+        ? metadata.trackedPaths
+        : ['/uptime', '/favicon', '/hitokoto']
+
+    const apiRowsHtml = apiRoutes.map((route) => {
+        const method = escapeHtml(route.method || 'GET')
+        const path = escapeHtml(route.path || '/')
+        const description = escapeHtml(route.description || '-')
+        return `<tr><td><span class="api-method">${method}</span></td><td><code>${path}</code></td><td>${description}</td></tr>`
+    }).join('')
 
     const htmlStr = `<!DOCTYPE html>
 <html lang="zh-CN">
@@ -283,6 +315,31 @@ export function getHomepageHtml() {
         .bar-count-gold { font-size: 0.78rem; font-weight: 700; color: var(--gold); min-width: 28px; text-align: right; }
         .rank-badge { font-size: 0.9rem; margin-right: 4px; }
 
+        /* ====== API 列表 ====== */
+        .api-table-wrap {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 16px;
+            backdrop-filter: blur(12px); overflow-x: auto;
+        }
+        .api-table { width: 100%; border-collapse: collapse; min-width: 640px; }
+        .api-table th, .api-table td {
+            padding: 12px 14px; text-align: left; font-size: 0.84rem;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .api-table th {
+            color: var(--text-dim); font-weight: 600; font-size: 0.76rem;
+            letter-spacing: 0.04em; text-transform: uppercase;
+        }
+        .api-table tbody tr:hover { background: rgba(6, 182, 212, 0.04); }
+        .api-table tbody tr:last-child td { border-bottom: none; }
+        .api-method {
+            display: inline-block; min-width: 44px; text-align: center;
+            padding: 3px 8px; border-radius: 999px; font-size: 0.68rem;
+            font-weight: 700; color: var(--cyan);
+            background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.2);
+        }
+        .api-table code { color: var(--text-bright); font-family: var(--mono); font-size: 0.8rem; }
+
         /* ====== Footer ====== */
         footer {
             padding: 32px 0; text-align: center;
@@ -432,6 +489,26 @@ export function getHomepageHtml() {
                 <\/div>
             </section>
 
+            <!-- API 列表 -->
+            <section class="section fade-in fade-in-5">
+                <h2 class="section-title">API 路由总览</h2>
+                <p class="section-desc">该表由服务端路由元数据自动生成</p>
+                <div class="api-table-wrap">
+                    <table class="api-table">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Path</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${apiRowsHtml}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
             <!-- 统计面板 -->
             <section class="section fade-in fade-in-5">
                 <h2 class="section-title">实时统计</h2>
@@ -521,7 +598,7 @@ export function getHomepageHtml() {
         loadHitokoto();
 
         /* ── Stats ── */
-        var TRACKED_PATHS = ['/uptime', '/favicon', '/hitokoto'];
+        var TRACKED_PATHS = ${JSON.stringify(trackedPaths)};
 
         function renderStatsError(msg) {
             document.getElementById('methodStats').innerHTML = '<span class="bar-label">' + msg + '<\/span>';

@@ -3,11 +3,10 @@
  */
 
 import axios from 'axios'
-import { isValidUrl, isPrivateUrl } from '../utils/validators.js'
 import { mapErrorResponse } from '../utils/response.js'
 import { createHttpConfig } from '../utils/httpClient.js'
+import { validatePublicUrlParam } from '../utils/requestValidation.js'
 import { config } from '../config.js'
-import { RESPONSE_MESSAGES } from '../constants/index.js'
 
 /**
  * 处理网站可用性检测请求
@@ -15,19 +14,9 @@ import { RESPONSE_MESSAGES } from '../constants/index.js'
  * @returns {Response} API 响应
  */
 export async function handleUptime(c) {
-    const url = c.req.query('url')
-
-    // 参数验证
-    if (!url) {
-        return c.json({ error: RESPONSE_MESSAGES.URL_REQUIRED }, 400)
-    }
-
-    if (!isValidUrl(url)) {
-        return c.json({ error: RESPONSE_MESSAGES.INVALID_URL }, 400)
-    }
-
-    if (isPrivateUrl(url)) {
-        return c.json({ error: 'private/internal addresses are not allowed' }, 403)
+    const { url, response } = validatePublicUrlParam(c)
+    if (response) {
+        return response
     }
 
     const start = Date.now()

@@ -3,10 +3,9 @@
  */
 
 import axios from 'axios'
-import { isValidUrl, isPrivateUrl } from '../utils/validators.js'
 import { createHttpConfig, createImageHttpConfig, getMimeTypeFromUrl, isImageResponse } from '../utils/httpClient.js'
+import { validatePublicUrlParam } from '../utils/requestValidation.js'
 import { config } from '../config.js'
-import { RESPONSE_MESSAGES } from '../constants/index.js'
 
 // ── 缓存配置 ──
 const FAILED_CACHE_TTL = 5 * 60 * 1000   // 负面缓存 5 分钟
@@ -68,7 +67,7 @@ function extractFaviconFromHtml(html, baseUrl) {
 
     for (const pattern of patterns) {
         const match = html.match(pattern)
-        if (match && match[1]) {
+        if (match?.[1]) {
             try {
                 return new URL(match[1], baseUrl).href
             } catch {
@@ -109,18 +108,9 @@ async function downloadImage(url, timeout, signal) {
  * 处理网站图标获取请求
  */
 export async function handleFavicon(c) {
-    const url = c.req.query('url')
-
-    if (!url) {
-        return c.json({ error: RESPONSE_MESSAGES.URL_REQUIRED }, 400)
-    }
-
-    if (!isValidUrl(url)) {
-        return c.json({ error: RESPONSE_MESSAGES.INVALID_URL }, 400)
-    }
-
-    if (isPrivateUrl(url)) {
-        return c.json({ error: 'private/internal addresses are not allowed' }, 403)
+    const { url, response } = validatePublicUrlParam(c)
+    if (response) {
+        return response
     }
 
     // 命中成功缓存 → 直接返回
@@ -186,7 +176,7 @@ export async function handleFavicon(c) {
 
         cacheFailedUrl(url)
         return c.json({ error: 'favicon not found' }, 404)
-    } catch (err) {
+    } catch {
         cacheFailedUrl(url)
         return c.json({ error: 'failed to fetch favicon' }, 500)
     } finally {
