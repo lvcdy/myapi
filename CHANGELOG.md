@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/lvcdy/myapi/compare/v1.9.0...v1.10.0) (2026-04-16)
+
+
+### Features
+
+* **favicon:** add strict mode for favicon retrieval to return 404 JSON on failure ([93d36b7](https://github.com/lvcdy/myapi/commit/93d36b77a137834d54569d3038c08d7ce595b8a0))
+
 # [1.9.0](https://github.com/lvcdy/myapi/compare/v1.8.0...v1.9.0) (2026-04-13)
 
 
