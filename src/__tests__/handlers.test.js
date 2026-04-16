@@ -54,8 +54,18 @@ describe('API 处理器测试', () => {
             const res = await app.fetch(
                 new Request('http://localhost/favicon?url=https://github.com')
             )
-            // 由于跨域限制，测试环境可能返回404，实际环境应该返回图标
-            expect([200, 404]).toContain(res.status)
+            // 默认模式失败时返回兜底图标，因此应始终为 200
+            expect(res.status).toBe(200)
+        })
+
+        it('strict 模式失败时应该返回 404 JSON', async () => {
+            const res = await app.fetch(
+                new Request('http://localhost/favicon?url=https://non-existent-domain-for-test-12345.com&strict=1')
+            )
+            expect(res.status).toBe(404)
+            const data = await res.json()
+            expect(data.error).toContain('favicon not found')
+            expect(data.reason).toBeDefined()
         })
 
         it('缺少url参数应该返回 400 BAD REQUEST', async () => {

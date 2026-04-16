@@ -7,6 +7,8 @@ import { createHttpConfig, createImageHttpConfig, getMimeTypeFromUrl, isImageRes
 import { validatePublicUrlParam } from '../utils/requestValidation.js'
 import { config } from '../config.js'
 
+const FALLBACK_FAVICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16"><rect width="16" height="16" rx="3" fill="#e2e8f0"/><text x="8" y="12" text-anchor="middle" font-size="11" fill="#94a3b8">?</text></svg>'
+
 // ── 缓存配置 ──
 const FAILED_CACHE_TTL = 5 * 60 * 1000   // 负面缓存 5 分钟
 const SUCCESS_CACHE_TTL = 60 * 60 * 1000  // 成功缓存 1 小时
@@ -52,6 +54,27 @@ function cacheSuccessUrl(url, data, contentType) {
         successCache.delete(oldest)
     }
     successCache.set(url, { data, contentType, time: Date.now() })
+}
+
+function respondFallbackIcon(c, reason = 'fallback') {
+    return c.body(FALLBACK_FAVICON, 200, {
+        'Content-Type': 'image/svg+xml; charset=utf-8',
+        'Cache-Control': 'public, max-age=300',
+        'X-Favicon-Fallback': reason
+    })
+}
+
+function isStrictApiMode(c) {
+    const strict = c.req.query('strict')
+    if (!strict) return false
+    return ['1', 'true', 'yes', 'on'].includes(strict.toLowerCase())
+}
+
+function respondFaviconFailure(c, strictMode, reason = 'not-found') {
+    if (strictMode) {
+        return c.json({ error: 'favicon not found', reason }, 404)
+    }
+    return respondFallbackIcon(c, reason)
 }
 
 /**
@@ -112,6 +135,7 @@ export async function handleFavicon(c) {
     if (response) {
         return response
     }
+    const strictMode = isStrictApiMode(c)
 
     // 命中成功缓存 → 直接返回
     const cached = getSuccessCached(url)
@@ -124,15 +148,17 @@ export async function handleFavicon(c) {
 
     // 命中负面缓存 → 快速失败
     if (isFailedCached(url)) {
-        return c.json({ error: 'favicon not found (cached)' }, 404)
+        return respondFaviconFailure(c, strictMode, 'cached-miss')
     }
 
     // 创建 AbortController，确保 handler 结束时取消所有未完成的外发请求
     const controller = new AbortController()
     const { signal } = controller
 
-    // 单次外发请求超时：留够余量给多策略串行，总时长 < Hono 全局超时
-    const stepTimeout = Math.min(Math.floor(config.TIMEOUT / 3), 3000)
+    // 为 favicon 抓取设置更严格的内部预算，避免触发全局 timeout 中间件
+    const deadlineMs = Math.max(1200, Math.min(config.TIMEOUT - 500, 5000))
+    const stepTimeout = Math.max(800, Math.min(Math.floor(deadlineMs / 2), 2500))
+    const deadlineTimer = setTimeout(() => controller.abort(), deadlineMs)
 
     try {
         const base = new URL(url)
@@ -175,12 +201,13 @@ export async function handleFavicon(c) {
         }
 
         cacheFailedUrl(url)
-        return c.json({ error: 'favicon not found' }, 404)
+        return respondFaviconFailure(c, strictMode, 'not-found')
     } catch {
         cacheFailedUrl(url)
-        return c.json({ error: 'failed to fetch favicon' }, 500)
+        return respondFaviconFailure(c, strictMode, 'fetch-failed')
     } finally {
         // 无论成功/失败/超时，立即取消所有未完成的外发请求
+        clearTimeout(deadlineTimer)
         controller.abort()
     }
 }

@@ -65,6 +65,8 @@ GET /uptime?url=https://example.com
 ### 网站图标获取
 ```
 GET /favicon?url=https://github.com
+# 严格 API 模式（失败返回 404 JSON，而不是兜底图标）
+GET /favicon?url=https://github.com&strict=1
 ```
 
 ### 一言API
