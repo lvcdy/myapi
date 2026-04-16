@@ -1,3 +1,10 @@
+## [1.10.1](https://github.com/lvcdy/myapi/compare/v1.10.0...v1.10.1) (2026-04-16)
+
+
+### Bug Fixes
+
+* **middleware:** 调整超时中间件配置避免与axios冲突 ([a89ab77](https://github.com/lvcdy/myapi/commit/a89ab77d76c6c4f8965a903b60661751d2c26947))
+
 # [1.10.0](https://github.com/lvcdy/myapi/compare/v1.9.0...v1.10.0) (2026-04-16)
 
 ### Features
