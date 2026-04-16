@@ -10,6 +10,7 @@ import {
   getStats,
   hitokotoTypes,
 } from "../data/hitokoto.js";
+import { errorResponse } from "../utils/response.js";
 
 /**
  * 验证 JSONP 回调函数名是否安全
@@ -71,13 +72,9 @@ export function handleHitokoto(c) {
   });
 
   if (!item) {
-    return c.json(
-      {
-        error: "no matching sentence found",
-        hint: "请检查参数是否过于严格（如 min_length/max_length），或类型参数是否正确",
-      },
-      404
-    );
+    const errorResp = errorResponse("no matching sentence found", 404);
+    errorResp.hint = "请检查参数是否过于严格（如 min_length/max_length），或类型参数是否正确";
+    return c.json(errorResp, 404);
   }
 
   // 根据编码格式返回
@@ -91,7 +88,7 @@ export function handleHitokoto(c) {
       if (callback) {
         // JSONP 模式 - 验证回调函数名防止 XSS
         if (!isSafeCallbackName(callback)) {
-          return c.json({ error: "invalid callback name" }, 400);
+          return c.json(errorResponse("invalid callback name", 400), 400);
         }
         return c.text(`${callback}(${JSON.stringify(item)});`, 200, {
           "Content-Type": "application/javascript; charset=utf-8",

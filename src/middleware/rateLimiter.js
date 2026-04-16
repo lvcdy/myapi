@@ -3,6 +3,8 @@
  * 针对向外发起请求的端点（/favicon, /uptime）做更严格的限制
  */
 
+import { errorResponse } from "../utils/response.js";
+
 /**
  * 创建限流器实例
  * @param {Object} options
@@ -59,7 +61,7 @@ export function createRateLimiter({
       if (typeof onRateLimited === "function") {
         return onRateLimited(c);
       }
-      return c.json({ error: "Too Many Requests" }, 429);
+      return c.json(errorResponse("Too Many Requests", 429), 429);
     }
 
     await next();

@@ -34,6 +34,19 @@ export const createApp = () => {
   if (corsConfig.enable) {
     app.use(cors(corsConfig.options));
   }
+  
+  // 额外的安全头
+  app.use((c, next) => {
+    // Content-Security-Policy
+    c.header("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:");
+    // X-Content-Type-Options
+    c.header("X-Content-Type-Options", "nosniff");
+    // X-Frame-Options
+    c.header("X-Frame-Options", "DENY");
+    // X-XSS-Protection
+    c.header("X-XSS-Protection", "1; mode=block");
+    return next();
+  });
 
   // 请求处理中间件
   if (requestIdConfig.enable) {

@@ -131,8 +131,8 @@ function loadAllData() {
   );
 }
 
-// 启动时加载数据
-loadAllData();
+// 延迟加载数据，首次请求时加载
+// 启动时不立即加载，而是在首次调用ensureLoaded时加载
 
 /**
  * 确保数据已加载
