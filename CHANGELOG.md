@@ -1,3 +1,10 @@
+# [1.11.0](https://github.com/lvcdy/myapi/compare/v1.10.1...v1.11.0) (2026-04-16)
+
+
+### Features
+
+* 优化API安全性和错误处理 ([973edca](https://github.com/lvcdy/myapi/commit/973edcaa39a650b354cade3c1dc47cd8db0b82aa))
+
 ## [1.10.1](https://github.com/lvcdy/myapi/compare/v1.10.0...v1.10.1) (2026-04-16)
 
 
