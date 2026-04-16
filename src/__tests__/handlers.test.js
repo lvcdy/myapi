@@ -1,121 +1,125 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { createApp } from '../app.js'
+import { describe, it, expect, beforeEach } from "vitest";
+import { createApp } from "../app.js";
 
-describe('API 处理器测试', () => {
-    let app
+describe("API 处理器测试", () => {
+  let app;
 
-    beforeEach(() => {
-        app = createApp()
-    })
+  beforeEach(() => {
+    app = createApp();
+  });
 
-    describe('Hitokoto 一言API', () => {
-        it('GET /hitokoto 应该返回一言', async () => {
-            const res = await app.fetch(new Request('http://localhost/hitokoto'))
-            expect(res.status).toBe(200)
-            const data = await res.json()
-            expect(data.id).toBeDefined()
-            expect(data.hitokoto).toBeDefined()
-            expect(data.type).toBeDefined()
-            expect(data.from).toBeDefined()
-        })
+  describe("Hitokoto 一言API", () => {
+    it("GET /hitokoto 应该返回一言", async () => {
+      const res = await app.fetch(new Request("http://localhost/hitokoto"));
+      expect(res.status).toBe(200);
+      const data = await res.json();
+      expect(data.id).toBeDefined();
+      expect(data.hitokoto).toBeDefined();
+      expect(data.type).toBeDefined();
+      expect(data.from).toBeDefined();
+    });
 
-        it('GET /hitokoto?c=a 应该返回动画类语录', async () => {
-            const res = await app.fetch(new Request('http://localhost/hitokoto?c=a'))
-            expect(res.status).toBe(200)
-            const data = await res.json()
-            expect(data.type).toBe('a')
-        })
+    it("GET /hitokoto?c=a 应该返回动画类语录", async () => {
+      const res = await app.fetch(new Request("http://localhost/hitokoto?c=a"));
+      expect(res.status).toBe(200);
+      const data = await res.json();
+      expect(data.type).toBe("a");
+    });
 
-        it('GET /hitokoto?c=b 应该返回漫画类语录', async () => {
-            const res = await app.fetch(new Request('http://localhost/hitokoto?c=b'))
-            expect(res.status).toBe(200)
-            const data = await res.json()
-            expect(data.type).toBe('b')
-        })
+    it("GET /hitokoto?c=b 应该返回漫画类语录", async () => {
+      const res = await app.fetch(new Request("http://localhost/hitokoto?c=b"));
+      expect(res.status).toBe(200);
+      const data = await res.json();
+      expect(data.type).toBe("b");
+    });
 
-        it('GET /hitokoto (encode=text) 应该返回纯文本格式', async () => {
-            const res = await app.fetch(new Request('http://localhost/hitokoto?encode=text'))
-            expect(res.status).toBe(200)
-            expect(res.headers.get('content-type')).toContain('text/plain')
-        })
+    it("GET /hitokoto (encode=text) 应该返回纯文本格式", async () => {
+      const res = await app.fetch(
+        new Request("http://localhost/hitokoto?encode=text")
+      );
+      expect(res.status).toBe(200);
+      expect(res.headers.get("content-type")).toContain("text/plain");
+    });
 
-        it('无匹配结果应该返回 404', async () => {
-            const res = await app.fetch(
-                new Request('http://localhost/hitokoto?c=a&min_length=999999')
-            )
-            expect(res.status).toBe(404)
-            const data = await res.json()
-            expect(data.error).toContain('no matching')
-        })
-    })
+    it("无匹配结果应该返回 404", async () => {
+      const res = await app.fetch(
+        new Request("http://localhost/hitokoto?c=a&min_length=999999")
+      );
+      expect(res.status).toBe(404);
+      const data = await res.json();
+      expect(data.error).toContain("no matching");
+    });
+  });
 
-    describe('Favicon 图标获取', () => {
-        it('GET /favicon?url=https://github.com 应该返回图标或报错', async () => {
-            const res = await app.fetch(
-                new Request('http://localhost/favicon?url=https://github.com')
-            )
-            // 默认模式失败时返回兜底图标，因此应始终为 200
-            expect(res.status).toBe(200)
-        })
+  describe("Favicon 图标获取", () => {
+    it("GET /favicon?url=https://github.com 应该返回图标或报错", async () => {
+      const res = await app.fetch(
+        new Request("http://localhost/favicon?url=https://github.com")
+      );
+      // 默认模式失败时返回兜底图标，因此应始终为 200
+      expect(res.status).toBe(200);
+    });
 
-        it('strict 模式失败时应该返回 404 JSON', async () => {
-            const res = await app.fetch(
-                new Request('http://localhost/favicon?url=https://non-existent-domain-for-test-12345.com&strict=1')
-            )
-            expect(res.status).toBe(404)
-            const data = await res.json()
-            expect(data.error).toContain('favicon not found')
-            expect(data.reason).toBeDefined()
-        })
+    it("strict 模式失败时应该返回 404 JSON", async () => {
+      const res = await app.fetch(
+        new Request(
+          "http://localhost/favicon?url=https://non-existent-domain-for-test-12345.com&strict=1"
+        )
+      );
+      expect(res.status).toBe(404);
+      const data = await res.json();
+      expect(data.error).toContain("favicon not found");
+      expect(data.reason).toBeDefined();
+    });
 
-        it('缺少url参数应该返回 400 BAD REQUEST', async () => {
-            const res = await app.fetch(new Request('http://localhost/favicon'))
-            expect(res.status).toBe(400)
-        })
-    })
+    it("缺少url参数应该返回 400 BAD REQUEST", async () => {
+      const res = await app.fetch(new Request("http://localhost/favicon"));
+      expect(res.status).toBe(400);
+    });
+  });
 
-    describe('URL 协议校验', () => {
-        it('javascript: 协议应该被拒绝', async () => {
-            const res = await app.fetch(
-                new Request('http://localhost/favicon?url=javascript:alert(1)')
-            )
-            expect(res.status).toBe(400)
-        })
+  describe("URL 协议校验", () => {
+    it("javascript: 协议应该被拒绝", async () => {
+      const res = await app.fetch(
+        new Request("http://localhost/favicon?url=javascript:alert(1)")
+      );
+      expect(res.status).toBe(400);
+    });
 
-        it('ftp: 协议应该被拒绝', async () => {
-            const res = await app.fetch(
-                new Request('http://localhost/uptime?url=ftp://example.com')
-            )
-            expect(res.status).toBe(400)
-        })
-    })
+    it("ftp: 协议应该被拒绝", async () => {
+      const res = await app.fetch(
+        new Request("http://localhost/uptime?url=ftp://example.com")
+      );
+      expect(res.status).toBe(400);
+    });
+  });
 
-    describe('SSRF 防护', () => {
-        it('GET /favicon?url=http://127.0.0.1 应该拒绝内网地址', async () => {
-            const res = await app.fetch(
-                new Request('http://localhost/favicon?url=http://127.0.0.1')
-            )
-            expect(res.status).toBe(403)
-            const data = await res.json()
-            expect(data.error).toContain('private')
-        })
+  describe("SSRF 防护", () => {
+    it("GET /favicon?url=http://127.0.0.1 应该拒绝内网地址", async () => {
+      const res = await app.fetch(
+        new Request("http://localhost/favicon?url=http://127.0.0.1")
+      );
+      expect(res.status).toBe(403);
+      const data = await res.json();
+      expect(data.error).toContain("private");
+    });
 
-        it('GET /uptime?url=http://192.168.1.1 应该拒绝内网地址', async () => {
-            const res = await app.fetch(
-                new Request('http://localhost/uptime?url=http://192.168.1.1')
-            )
-            expect(res.status).toBe(403)
-            const data = await res.json()
-            expect(data.error).toContain('private')
-        })
-    })
+    it("GET /uptime?url=http://192.168.1.1 应该拒绝内网地址", async () => {
+      const res = await app.fetch(
+        new Request("http://localhost/uptime?url=http://192.168.1.1")
+      );
+      expect(res.status).toBe(403);
+      const data = await res.json();
+      expect(data.error).toContain("private");
+    });
+  });
 
-    describe('HTTP 方法检查', () => {
-        it('POST 请求应该被拒绝', async () => {
-            const res = await app.fetch(
-                new Request('http://localhost/health', { method: 'POST' })
-            )
-            expect([405, 404, 501]).toContain(res.status)
-        })
-    })
-})
+  describe("HTTP 方法检查", () => {
+    it("POST 请求应该被拒绝", async () => {
+      const res = await app.fetch(
+        new Request("http://localhost/health", { method: "POST" })
+      );
+      expect([405, 404, 501]).toContain(res.status);
+    });
+  });
+});

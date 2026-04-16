@@ -2,7 +2,22 @@
  * 响应工具 - 统一响应格式
  */
 
-import { ERROR_CODE_MAP } from '../constants/index.js'
+import { ERROR_CODE_MAP } from "../constants/index.js";
+
+/**
+ * 构建成功响应
+ * @param {any} data - 响应数据
+ * @param {number} code - HTTP 状态码
+ * @returns {Object} 响应对象
+ */
+export function successResponse(data, code = 200) {
+  return {
+    success: true,
+    data,
+    code,
+    timestamp: new Date().toISOString(),
+  };
+}
 
 /**
  * 构建错误响应
@@ -11,12 +26,13 @@ import { ERROR_CODE_MAP } from '../constants/index.js'
  * @returns {Object} 响应对象
  */
 export function errorResponse(error, code = 500) {
-    const message = error instanceof Error ? error.message : error
-    return {
-        error: message,
-        code,
-        timestamp: new Date().toISOString()
-    }
+  const message = error instanceof Error ? error.message : error;
+  return {
+    success: false,
+    error: message,
+    code,
+    timestamp: new Date().toISOString(),
+  };
 }
 
 /**
@@ -26,28 +42,50 @@ export function errorResponse(error, code = 500) {
  * @returns {Object} 响应对象
  */
 export function mapErrorResponse(error, context = {}) {
-    const { code: errorCode } = error
+  const { code: errorCode } = error;
 
-    // 检查错误码映射
-    if (errorCode && ERROR_CODE_MAP[errorCode]) {
-        const { code, message } = ERROR_CODE_MAP[errorCode]
-        return {
-            ...errorResponse(message, code),
-            ...context
-        }
-    }
-
-    // 检查 HTTP 响应错误
-    if (error.response?.status) {
-        return {
-            ...errorResponse(`HTTP ${error.response.status}`, error.response.status),
-            ...context
-        }
-    }
-
-    // 默认错误
+  // 检查错误码映射
+  if (errorCode && ERROR_CODE_MAP[errorCode]) {
+    const { code, message } = ERROR_CODE_MAP[errorCode];
     return {
-        ...errorResponse(error.message, 500),
-        ...context
-    }
+      ...errorResponse(message, code),
+      ...context,
+    };
+  }
+
+  // 检查 HTTP 响应错误
+  if (error.response?.status) {
+    return {
+      ...errorResponse(`HTTP ${error.response.status}`, error.response.status),
+      ...context,
+    };
+  }
+
+  // 默认错误
+  return {
+    ...errorResponse(error.message, 500),
+    ...context,
+  };
+}
+
+/**
+ * 构建分页响应
+ * @param {Array} data - 数据列表
+ * @param {number} total - 总条数
+ * @param {number} page - 当前页码
+ * @param {number} pageSize - 每页大小
+ * @returns {Object} 分页响应对象
+ */
+export function paginatedResponse(data, total, page = 1, pageSize = 10) {
+  return {
+    success: true,
+    data,
+    pagination: {
+      total,
+      page,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize),
+    },
+    timestamp: new Date().toISOString(),
+  };
 }

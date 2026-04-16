@@ -2,11 +2,11 @@
  * 网站可用性检测处理器
  */
 
-import axios from 'axios'
-import { mapErrorResponse } from '../utils/response.js'
-import { createHttpConfig } from '../utils/httpClient.js'
-import { validatePublicUrlParam } from '../utils/requestValidation.js'
-import { config } from '../config.js'
+import axios from "axios";
+import { mapErrorResponse } from "../utils/response.js";
+import { createHttpConfig } from "../utils/httpClient.js";
+import { validatePublicUrlParam } from "../utils/requestValidation.js";
+import { config } from "../config.js";
 
 /**
  * 处理网站可用性检测请求
@@ -14,29 +14,35 @@ import { config } from '../config.js'
  * @returns {Response} API 响应
  */
 export async function handleUptime(c) {
-    const { url, response } = validatePublicUrlParam(c)
-    if (response) {
-        return response
-    }
+  const { url, response } = validatePublicUrlParam(c);
+  if (response) {
+    return response;
+  }
 
-    const start = Date.now()
+  const start = Date.now();
 
-    try {
-        const res = await axios.get(url, createHttpConfig({
-            timeout: config.TIMEOUT
-        }))
-        const ms = Date.now() - start
+  try {
+    const res = await axios.get(
+      url,
+      createHttpConfig({
+        timeout: config.TIMEOUT,
+      })
+    );
+    const ms = Date.now() - start;
 
-        // 根据状态码判断网站状态
-        const isUp = res.status >= 200 && res.status < 400
-        return c.json({
-            status: isUp ? 'up' : 'error',
-            code: res.status,
-            ms
-        }, 200)
-    } catch (err) {
-        const ms = Date.now() - start
-        const errorResponse = mapErrorResponse(err, { ms })
-        return c.json(errorResponse, 200) // 返回 200，错误信息在 body 中
-    }
+    // 根据状态码判断网站状态
+    const isUp = res.status >= 200 && res.status < 400;
+    return c.json(
+      {
+        status: isUp ? "up" : "error",
+        code: res.status,
+        ms,
+      },
+      200
+    );
+  } catch (err) {
+    const ms = Date.now() - start;
+    const errorResponse = mapErrorResponse(err, { ms });
+    return c.json(errorResponse, 200); // 返回 200，错误信息在 body 中
+  }
 }

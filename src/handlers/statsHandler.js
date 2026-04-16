@@ -2,8 +2,8 @@
  * 统计端点处理器 - 需要 Bearer Token 认证
  */
 
-import { getRequestStats } from '../middleware/requestCounter.js'
-import { config } from '../config.js'
+import { getRequestStats } from "../middleware/requestCounter.js";
+import { config } from "../config.js";
 
 /**
  * 处理统计请求
@@ -12,15 +12,15 @@ import { config } from '../config.js'
  * @param {Context} c - Hono 上下文对象
  */
 export function handleStats(c) {
-    const token = config.STATS_TOKEN
+  const token = config.STATS_TOKEN;
 
-    if (token) {
-        // 有 token 配置时需要认证
-        const auth = c.req.header('authorization')
-        if (auth !== `Bearer ${token}`) {
-            return c.json({ error: 'Unauthorized' }, 401)
-        }
+  if (token) {
+    // 有 token 配置时需要认证
+    const auth = c.req.header("authorization");
+    if (auth !== `Bearer ${token}`) {
+      return c.json({ error: "Unauthorized" }, 401);
     }
+  }
 
-    return c.json(getRequestStats())
+  return c.json(getRequestStats());
 }

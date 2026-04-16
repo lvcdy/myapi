@@ -2,7 +2,7 @@
  * HTTP 客户端工具
  */
 
-import { HTTP_CONFIG, MIME_TYPES } from '../constants/index.js'
+import { HTTP_CONFIG, MIME_TYPES } from "../constants/index.js";
 
 /**
  * 创建 HTTP 请求配置
@@ -10,15 +10,15 @@ import { HTTP_CONFIG, MIME_TYPES } from '../constants/index.js'
  * @returns {Object} axios 配置
  */
 export function createHttpConfig(options = {}) {
-    return {
-        headers: {
-            'User-Agent': HTTP_CONFIG.USER_AGENT,
-            ...options.headers
-        },
-        maxRedirects: HTTP_CONFIG.MAX_REDIRECTS,
-        validateStatus: () => true, // 不自动抛出 HTTP 错误
-        ...options
-    }
+  return {
+    headers: {
+      "User-Agent": HTTP_CONFIG.USER_AGENT,
+      ...options.headers,
+    },
+    maxRedirects: HTTP_CONFIG.MAX_REDIRECTS,
+    validateStatus: () => true, // 不自动抛出 HTTP 错误
+    ...options,
+  };
 }
 
 /**
@@ -27,13 +27,13 @@ export function createHttpConfig(options = {}) {
  * @returns {Object} axios 配置
  */
 export function createImageHttpConfig(options = {}) {
-    return createHttpConfig({
-        responseType: 'arraybuffer',
-        headers: {
-            'Accept': 'image/*,*/*'
-        },
-        ...options
-    })
+  return createHttpConfig({
+    responseType: "arraybuffer",
+    headers: {
+      Accept: "image/*,*/*",
+    },
+    ...options,
+  });
 }
 
 /**
@@ -42,8 +42,8 @@ export function createImageHttpConfig(options = {}) {
  * @returns {string} MIME 类型
  */
 export function getMimeTypeFromUrl(url) {
-    const ext = url.split('.').pop()?.toLowerCase().split('?')[0]
-    return MIME_TYPES[ext] || 'application/octet-stream'
+  const ext = url.split(".").pop()?.toLowerCase().split("?")[0];
+  return MIME_TYPES[ext] || "application/octet-stream";
 }
 
 /**
@@ -52,6 +52,6 @@ export function getMimeTypeFromUrl(url) {
  * @returns {boolean}
  */
 export function isImageResponse(response) {
-    const contentType = response.headers['content-type'] || ''
-    return contentType.startsWith('image/') || contentType.includes('icon')
+  const contentType = response.headers["content-type"] || "";
+  return contentType.startsWith("image/") || contentType.includes("icon");
 }
