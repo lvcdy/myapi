@@ -34,17 +34,10 @@ export const createApp = () => {
   if (corsConfig.enable) {
     app.use(cors(corsConfig.options));
   }
-  
-  // 额外的安全头
+
+  // 允许内联脚本执行的CSP头
   app.use((c, next) => {
-    // Content-Security-Policy
-    c.header("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:");
-    // X-Content-Type-Options
-    c.header("X-Content-Type-Options", "nosniff");
-    // X-Frame-Options
-    c.header("X-Frame-Options", "DENY");
-    // X-XSS-Protection
-    c.header("X-XSS-Protection", "1; mode=block");
+    c.header("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:");
     return next();
   });
 

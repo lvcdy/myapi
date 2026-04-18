@@ -5,45 +5,45 @@
 let cachedHtml = null;
 
 function escapeHtml(value = "") {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
 }
 
 export function getHomepageHtml(metadata = {}) {
-  if (cachedHtml) return cachedHtml;
+    if (cachedHtml) return cachedHtml;
 
-  const defaultApiRoutes = [
-    { method: "GET", path: "/health", description: "健康检查" },
-    { method: "GET", path: "/stats", description: "统计（需认证）" },
-    { method: "GET", path: "/uptime", description: "可用性检测" },
-    { method: "GET", path: "/favicon", description: "网站图标" },
-    { method: "GET", path: "/hitokoto", description: "一言" },
-    { method: "GET", path: "/hitokoto/types", description: "一言类型" },
-  ];
+    const defaultApiRoutes = [
+        { method: "GET", path: "/health", description: "健康检查" },
+        { method: "GET", path: "/stats", description: "统计（需认证）" },
+        { method: "GET", path: "/uptime", description: "可用性检测" },
+        { method: "GET", path: "/favicon", description: "网站图标" },
+        { method: "GET", path: "/hitokoto", description: "一言" },
+        { method: "GET", path: "/hitokoto/types", description: "一言类型" },
+    ];
 
-  const apiRoutes =
-    Array.isArray(metadata.apiRoutes) && metadata.apiRoutes.length > 0
-      ? metadata.apiRoutes
-      : defaultApiRoutes;
-  const trackedPaths =
-    Array.isArray(metadata.trackedPaths) && metadata.trackedPaths.length > 0
-      ? metadata.trackedPaths
-      : ["/uptime", "/favicon", "/hitokoto"];
+    const apiRoutes =
+        Array.isArray(metadata.apiRoutes) && metadata.apiRoutes.length > 0
+            ? metadata.apiRoutes
+            : defaultApiRoutes;
+    const trackedPaths =
+        Array.isArray(metadata.trackedPaths) && metadata.trackedPaths.length > 0
+            ? metadata.trackedPaths
+            : ["/uptime", "/favicon", "/hitokoto"];
 
-  const apiRowsHtml = apiRoutes
-    .map((route) => {
-      const method = escapeHtml(route.method || "GET");
-      const path = escapeHtml(route.path || "/");
-      const description = escapeHtml(route.description || "-");
-      return `<tr><td><span class="api-method">${method}</span></td><td><code>${path}</code></td><td>${description}</td></tr>`;
-    })
-    .join("");
+    const apiRowsHtml = apiRoutes
+        .map((route) => {
+            const method = escapeHtml(route.method || "GET");
+            const path = escapeHtml(route.path || "/");
+            const description = escapeHtml(route.description || "-");
+            return `<tr><td><span class="api-method">${method}</span></td><td><code>${path}</code></td><td>${description}</td></tr>`;
+        })
+        .join("");
 
-  const htmlStr = `<!DOCTYPE html>
+    const htmlStr = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -588,71 +588,91 @@ export function getHomepageHtml(metadata = {}) {
         window.loadHitokoto = function() {
             var textEl = document.getElementById('hitokotoText');
             var fromEl = document.getElementById('hitokotoFrom');
+            if (!textEl || !fromEl) return;
+            
             textEl.style.opacity = '0.3';
-            fetch('/hitokoto').then(function(r) { return r.json(); }).then(function(d) {
-                textEl.style.opacity = '1';
-                textEl.textContent = d.hitokoto || '无数据';
-                fromEl.textContent = d.from ? '—— ' + d.from : '';
-            }).catch(function() {
-                textEl.style.opacity = '1';
-                textEl.textContent = '加载失败';
-                fromEl.textContent = '';
-            });
+            textEl.textContent = '加载中...';
+            fromEl.textContent = '';
+            
+            fetch(window.location.origin + '/hitokoto')
+                .then(function(r) {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.json();
+                })
+                .then(function(d) {
+                    textEl.style.opacity = '1';
+                    textEl.textContent = d.hitokoto || '无数据';
+                    fromEl.textContent = d.from ? '—— ' + d.from : '';
+                })
+                .catch(function(err) {
+                    textEl.style.opacity = '1';
+                    textEl.textContent = '加载失败';
+                    fromEl.textContent = '';
+                    console.error('Hitokoto load error:', err);
+                });
         };
-        loadHitokoto();
-
+        
         /* ── Stats ── */
         var TRACKED_PATHS = ${JSON.stringify(trackedPaths)};
-
+        
         function renderStatsError(msg) {
-            document.getElementById('methodStats').innerHTML = '<span class="bar-label">' + msg + '<\/span>';
-            document.getElementById('pathStats').innerHTML = '<span class="bar-label">' + msg + '<\/span>';
-            document.getElementById('activePaths').textContent = '-';
+            var methodStatsEl = document.getElementById('methodStats');
+            var pathStatsEl = document.getElementById('pathStats');
+            var activePathsEl = document.getElementById('activePaths');
+            if (!methodStatsEl || !pathStatsEl) return;
+            methodStatsEl.innerHTML = '<span class="bar-label">' + msg + '<\/span>';
+            pathStatsEl.innerHTML = '<span class="bar-label">' + msg + '<\/span>';
+            if (activePathsEl) activePathsEl.textContent = '-';
         }
 
         function loadStats() {
-            fetch('/stats').then(function(r) {
-                if (!r.ok) {
-                    throw new Error('stats_' + r.status);
-                }
-                return r.json();
-            }).then(function(s) {
-                var filteredPaths = {};
-                var filteredTotal = 0;
-                TRACKED_PATHS.forEach(function(p) {
-                    if (s.requestsByPath[p]) {
-                        filteredPaths[p] = s.requestsByPath[p];
-                        filteredTotal += s.requestsByPath[p];
+            fetch(window.location.origin + '/stats')
+                .then(function(r) {
+                    if (!r.ok) throw new Error('stats_' + r.status);
+                    return r.json();
+                })
+                .then(function(s) {
+                    var filteredPaths = {};
+                    var filteredTotal = 0;
+                    TRACKED_PATHS.forEach(function(p) {
+                        if (s.requestsByPath && s.requestsByPath[p]) {
+                            filteredPaths[p] = s.requestsByPath[p];
+                            filteredTotal += s.requestsByPath[p];
+                        }
+                    });
+                    var uptimeSec = parseFloat(s.uptime) || 0;
+                    var filteredAvg = uptimeSec > 0 ? (filteredTotal / uptimeSec).toFixed(2) : '0.00';
+                    animateNum('totalRequests', filteredTotal);
+                    animateNum('avgReqPerSec', filteredAvg);
+                    var activePathsEl = document.getElementById('activePaths');
+                    if (activePathsEl) {
+                        var activeCount = Object.keys(filteredPaths).length;
+                        activePathsEl.textContent = activeCount + ' / ' + TRACKED_PATHS.length;
+                    }
+                    var uptimeEl = document.getElementById('uptime');
+                    if (uptimeEl) uptimeEl.textContent = s.uptime || '0s';
+                    renderMethods(s);
+                    renderPaths(filteredPaths);
+                })
+                .catch(function(err) {
+                    console.error('Stats load error:', err);
+                    if (err && err.message === 'stats_401') {
+                        renderStatsError('统计已受保护（401）');
+                    } else if (err && err.message === 'stats_403') {
+                        renderStatsError('统计不可访问（403）');
+                    } else {
+                        renderStatsError('统计加载失败');
                     }
                 });
-                var uptimeSec = parseFloat(s.uptime);
-                var filteredAvg = uptimeSec > 0 ? (filteredTotal / uptimeSec).toFixed(2) : '0.00';
-                animateNum('totalRequests', filteredTotal);
-                animateNum('avgReqPerSec', filteredAvg);
-                var activeCount = Object.keys(filteredPaths).length;
-                document.getElementById('activePaths').textContent = activeCount + ' / ' + TRACKED_PATHS.length;
-                document.getElementById('uptime').textContent = s.uptime;
-                renderMethods(s);
-                renderPaths(filteredPaths);
-            }).catch(function(err) {
-                if (err && err.message === 'stats_401') {
-                    renderStatsError('统计已受保护（401）');
-                    return;
-                }
-                if (err && err.message === 'stats_403') {
-                    renderStatsError('统计不可访问（403）');
-                    return;
-                }
-                renderStatsError('统计加载失败');
-            });
         }
 
         function renderMethods(s) {
             var el = document.getElementById('methodStats');
-            var entries = Object.entries(s.requestsByMethod);
+            if (!el) return;
+            var entries = Object.entries(s.requestsByMethod || {});
             if (!entries.length) { el.innerHTML = '<span class="bar-label">暂无数据<\/span>'; return; }
             el.innerHTML = entries.map(function(e) {
-                var pct = (e[1] / s.totalRequests * 100).toFixed(1);
+                var pct = (e[1] / (s.totalRequests || 1) * 100).toFixed(1);
                 return '<div class="bar-row">' +
                     '<span class="bar-label">' + e[0] + '<\/span>' +
                     '<div class="bar-right">' +
@@ -664,6 +684,7 @@ export function getHomepageHtml(metadata = {}) {
 
         function renderPaths(filteredPaths) {
             var el = document.getElementById('pathStats');
+            if (!el) return;
             var icons = {'/uptime': '📡', '/favicon': '🖼️', '/hitokoto': '💬'};
             var entries = TRACKED_PATHS.map(function(p) { return [p, filteredPaths[p] || 0]; });
             entries.sort(function(a,b) { return b[1] - a[1]; });
@@ -681,6 +702,7 @@ export function getHomepageHtml(metadata = {}) {
 
         function animateNum(id, target) {
             var el = document.getElementById(id);
+            if (!el) return;
             var start = parseFloat(el.textContent) || 0;
             var end = parseFloat(target);
             var diff = (end - start) / 20;
@@ -696,13 +718,15 @@ export function getHomepageHtml(metadata = {}) {
             }, 20);
         }
 
-        loadStats();
+        // 延迟加载数据，确保 DOM 就绪
+        setTimeout(function() { loadHitokoto(); }, 100);
+        setTimeout(function() { loadStats(); }, 100);
         setInterval(loadStats, 3000);
     })();
     <\/script>
 </body>
 </html>`;
 
-  cachedHtml = htmlStr;
-  return cachedHtml;
+    cachedHtml = htmlStr;
+    return cachedHtml;
 }
