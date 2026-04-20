@@ -42,8 +42,8 @@ export const etagConfig = {
 
 // 超时中间件配置
 export const timeoutConfig = {
-    enable: true,
-    timeout: config.TIMEOUT + 1000 // 比axios请求的超时时间长1000ms，避免冲突
+  enable: true,
+  timeout: config.TIMEOUT + 1000, // 比axios请求的超时时间长1000ms，避免冲突
 };
 
 // 安全头中间件配置

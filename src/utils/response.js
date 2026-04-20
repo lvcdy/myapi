@@ -4,6 +4,32 @@
 
 import { ERROR_CODE_MAP } from "../constants/index.js";
 
+function createBaseResponse(success, code) {
+  return {
+    success,
+    code,
+    timestamp: new Date().toISOString(),
+  };
+}
+
+function normalizeErrorMessage(error) {
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+  if (typeof error === "string" && error.trim()) {
+    return error;
+  }
+  if (
+    error &&
+    typeof error === "object" &&
+    typeof error.message === "string" &&
+    error.message
+  ) {
+    return error.message;
+  }
+  return "Internal Server Error";
+}
+
 /**
  * 构建成功响应
  * @param {any} data - 响应数据
@@ -12,10 +38,8 @@ import { ERROR_CODE_MAP } from "../constants/index.js";
  */
 export function successResponse(data, code = 200) {
   return {
-    success: true,
+    ...createBaseResponse(true, code),
     data,
-    code,
-    timestamp: new Date().toISOString(),
   };
 }
 
@@ -26,12 +50,9 @@ export function successResponse(data, code = 200) {
  * @returns {Object} 响应对象
  */
 export function errorResponse(error, code = 500) {
-  const message = error instanceof Error ? error.message : error;
   return {
-    success: false,
-    error: message,
-    code,
-    timestamp: new Date().toISOString(),
+    ...createBaseResponse(false, code),
+    error: normalizeErrorMessage(error),
   };
 }
 
@@ -42,7 +63,8 @@ export function errorResponse(error, code = 500) {
  * @returns {Object} 响应对象
  */
 export function mapErrorResponse(error, context = {}) {
-  const { code: errorCode } = error;
+  const errorCode =
+    error && typeof error === "object" ? error.code : undefined;
 
   // 检查错误码映射
   if (errorCode && ERROR_CODE_MAP[errorCode]) {
@@ -63,7 +85,7 @@ export function mapErrorResponse(error, context = {}) {
 
   // 默认错误
   return {
-    ...errorResponse(error.message, 500),
+    ...errorResponse(error, 500),
     ...context,
   };
 }
@@ -78,7 +100,7 @@ export function mapErrorResponse(error, context = {}) {
  */
 export function paginatedResponse(data, total, page = 1, pageSize = 10) {
   return {
-    success: true,
+    ...createBaseResponse(true, 200),
     data,
     pagination: {
       total,
@@ -86,6 +108,5 @@ export function paginatedResponse(data, total, page = 1, pageSize = 10) {
       pageSize,
       totalPages: Math.ceil(total / pageSize),
     },
-    timestamp: new Date().toISOString(),
   };
 }

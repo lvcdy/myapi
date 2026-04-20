@@ -21,45 +21,48 @@ const SUCCESS_CACHE_TTL = 60 * 60 * 1000; // 成功缓存 1 小时
 const MAX_CACHE_SIZE = 1000;
 const MAX_HTML_LENGTH = 512 * 1024; // HTML 最大 512KB
 
+function createBoundedTtlCache(ttl, maxSize) {
+  const cache = new Map();
+
+  return {
+    get(key) {
+      const entry = cache.get(key);
+      if (!entry) return null;
+      if (Date.now() - entry.time > ttl) {
+        cache.delete(key);
+        return null;
+      }
+      return entry.value;
+    },
+    set(key, value) {
+      if (cache.size >= maxSize) {
+        const oldest = cache.keys().next().value;
+        cache.delete(oldest);
+      }
+      cache.set(key, { value, time: Date.now() });
+    },
+  };
+}
+
 // 负面缓存：避免反复请求已知失败的 URL
-const failedCache = new Map();
+const failedCache = createBoundedTtlCache(FAILED_CACHE_TTL, MAX_CACHE_SIZE);
 // 成功缓存：避免反复抓取已拿到图标的 URL
-const successCache = new Map();
+const successCache = createBoundedTtlCache(SUCCESS_CACHE_TTL, MAX_CACHE_SIZE);
 
 function isFailedCached(url) {
-  const entry = failedCache.get(url);
-  if (!entry) return false;
-  if (Date.now() - entry > FAILED_CACHE_TTL) {
-    failedCache.delete(url);
-    return false;
-  }
-  return true;
+  return failedCache.get(url) === true;
 }
 
 function cacheFailedUrl(url) {
-  if (failedCache.size >= MAX_CACHE_SIZE) {
-    const oldest = failedCache.keys().next().value;
-    failedCache.delete(oldest);
-  }
-  failedCache.set(url, Date.now());
+  failedCache.set(url, true);
 }
 
 function getSuccessCached(url) {
-  const entry = successCache.get(url);
-  if (!entry) return null;
-  if (Date.now() - entry.time > SUCCESS_CACHE_TTL) {
-    successCache.delete(url);
-    return null;
-  }
-  return entry;
+  return successCache.get(url);
 }
 
 function cacheSuccessUrl(url, data, contentType) {
-  if (successCache.size >= MAX_CACHE_SIZE) {
-    const oldest = successCache.keys().next().value;
-    successCache.delete(oldest);
-  }
-  successCache.set(url, { data, contentType, time: Date.now() });
+  successCache.set(url, { data, contentType });
 }
 
 function respondFallbackIcon(c, reason = "fallback") {
