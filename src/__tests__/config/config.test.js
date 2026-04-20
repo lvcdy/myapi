@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { NODE_ENV } from "../../config.js";
 
 describe("配置管理测试", () => {
   // 保存原始环境变量

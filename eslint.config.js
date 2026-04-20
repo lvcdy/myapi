@@ -8,6 +8,12 @@ const nodeGlobals = {
   setInterval: "readonly",
   clearTimeout: "readonly",
   setTimeout: "readonly",
+  fetch: "readonly",
+  Request: "readonly",
+  Response: "readonly",
+  Headers: "readonly",
+  AbortController: "readonly",
+  performance: "readonly",
 };
 
 const vitestGlobals = {

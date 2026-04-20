@@ -5,45 +5,45 @@
 let cachedHtml = null;
 
 function escapeHtml(value = "") {
-    return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#39;");
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
 }
 
 export function getHomepageHtml(metadata = {}) {
-    if (cachedHtml) return cachedHtml;
+  if (cachedHtml) return cachedHtml;
 
-    const defaultApiRoutes = [
-        { method: "GET", path: "/health", description: "健康检查" },
-        { method: "GET", path: "/stats", description: "统计（需认证）" },
-        { method: "GET", path: "/uptime", description: "可用性检测" },
-        { method: "GET", path: "/favicon", description: "网站图标" },
-        { method: "GET", path: "/hitokoto", description: "一言" },
-        { method: "GET", path: "/hitokoto/types", description: "一言类型" },
-    ];
+  const defaultApiRoutes = [
+    { method: "GET", path: "/health", description: "健康检查" },
+    { method: "GET", path: "/stats", description: "统计（需认证）" },
+    { method: "GET", path: "/uptime", description: "可用性检测" },
+    { method: "GET", path: "/favicon", description: "网站图标" },
+    { method: "GET", path: "/hitokoto", description: "一言" },
+    { method: "GET", path: "/hitokoto/types", description: "一言类型" },
+  ];
 
-    const apiRoutes =
-        Array.isArray(metadata.apiRoutes) && metadata.apiRoutes.length > 0
-            ? metadata.apiRoutes
-            : defaultApiRoutes;
-    const trackedPaths =
-        Array.isArray(metadata.trackedPaths) && metadata.trackedPaths.length > 0
-            ? metadata.trackedPaths
-            : ["/uptime", "/favicon", "/hitokoto"];
+  const apiRoutes =
+    Array.isArray(metadata.apiRoutes) && metadata.apiRoutes.length > 0
+      ? metadata.apiRoutes
+      : defaultApiRoutes;
+  const trackedPaths =
+    Array.isArray(metadata.trackedPaths) && metadata.trackedPaths.length > 0
+      ? metadata.trackedPaths
+      : ["/uptime", "/favicon", "/hitokoto"];
 
-    const apiRowsHtml = apiRoutes
-        .map((route) => {
-            const method = escapeHtml(route.method || "GET");
-            const path = escapeHtml(route.path || "/");
-            const description = escapeHtml(route.description || "-");
-            return `<tr><td><span class="api-method">${method}</span></td><td><code>${path}</code></td><td>${description}</td></tr>`;
-        })
-        .join("");
+  const apiRowsHtml = apiRoutes
+    .map((route) => {
+      const method = escapeHtml(route.method || "GET");
+      const path = escapeHtml(route.path || "/");
+      const description = escapeHtml(route.description || "-");
+      return `<tr><td><span class="api-method">${method}</span></td><td><code>${path}</code></td><td>${description}</td></tr>`;
+    })
+    .join("");
 
-    const htmlStr = `<!DOCTYPE html>
+  const htmlStr = `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -727,6 +727,6 @@ export function getHomepageHtml(metadata = {}) {
 </body>
 </html>`;
 
-    cachedHtml = htmlStr;
-    return cachedHtml;
+  cachedHtml = htmlStr;
+  return cachedHtml;
 }

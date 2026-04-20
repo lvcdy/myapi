@@ -3,7 +3,6 @@
  * 根据当前环境选择对应的配置
  */
 
-import { baseConfig } from "./base.js";
 import { developmentConfig } from "./development.js";
 import { productionConfig } from "./production.js";
 import { testConfig } from "./test.js";

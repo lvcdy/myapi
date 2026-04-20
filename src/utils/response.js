@@ -63,8 +63,7 @@ export function errorResponse(error, code = 500) {
  * @returns {Object} 响应对象
  */
 export function mapErrorResponse(error, context = {}) {
-  const errorCode =
-    error && typeof error === "object" ? error.code : undefined;
+  const errorCode = error && typeof error === "object" ? error.code : undefined;
 
   // 检查错误码映射
   if (errorCode && ERROR_CODE_MAP[errorCode]) {

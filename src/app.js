@@ -10,7 +10,6 @@ import { createLogger } from "./middleware/logger.js";
 import { createRequestCounter } from "./middleware/requestCounter.js";
 import { createRateLimiter } from "./middleware/rateLimiter.js";
 import { registerRoutes } from "./routes/index.js";
-import { config } from "./config.js";
 import {
   loggerConfig,
   rateLimiterConfig,
@@ -37,7 +36,10 @@ export const createApp = () => {
 
   // 允许内联脚本执行的CSP头
   app.use((c, next) => {
-    c.header("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:");
+    c.header(
+      "Content-Security-Policy",
+      "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:"
+    );
     return next();
   });
 

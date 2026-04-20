@@ -73,7 +73,8 @@ export function handleHitokoto(c) {
 
   if (!item) {
     const errorResp = errorResponse("no matching sentence found", 404);
-    errorResp.hint = "请检查参数是否过于严格（如 min_length/max_length），或类型参数是否正确";
+    errorResp.hint =
+      "请检查参数是否过于严格（如 min_length/max_length），或类型参数是否正确";
     return c.json(errorResp, 404);
   }
 
