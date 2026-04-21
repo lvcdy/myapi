@@ -1,12 +1,12 @@
-# MyAPI Dockerfile - 版本 2.0.0
+# MyAPI Dockerfile - 版本 2.0.1
 
 # ── 构建阶段: 仅安装生产依赖 ──
 FROM node:alpine AS builder
 
 WORKDIR /app
 
-# 安装 pnpm 并清理 npm 缓存
-RUN npm install -g pnpm --no-fund --no-audit && npm cache clean --force
+# 启用 corepack 并固定 pnpm 版本
+RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
 
 COPY package.json pnpm-lock.yaml ./
 
@@ -21,7 +21,7 @@ FROM node:alpine
 ARG BUILD_TIME
 
 ENV NODE_ENV=production \
-    NODE_OPTIONS="--max-old-space-size=64" \
+    NODE_OPTIONS="--max-old-space-size=128" \
     NODE_NO_WARNINGS=1 \
     BUILD_TIME=${BUILD_TIME}
 
@@ -45,7 +45,7 @@ USER nodejs
 
 EXPOSE 3000
 
-LABEL version="2.0.0" \
+LABEL version="2.0.1" \
     maintainer="myapi" \
     description="一言 API - 提供随机句子和可用性检测"
 

@@ -2,6 +2,7 @@
   "name": "myapi",
   "type": "module",
   "version": "1.11.0",
+  "packageManager": "pnpm@10.33.0",
   "description": "Lightweight API server",
   "scripts": {
     "start": "node index.js",
@@ -13,27 +14,27 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "quality": "npm run lint && npm run format:check && npm run test:run",
+    "quality": "pnpm lint && pnpm format:check && pnpm test:run",
     "release": "semantic-release"
   },
   "dependencies": {
-    "@hono/node-server": "^1.19.11",
-    "axios": "^1.13.6",
-    "hono": "^4.12.5"
+    "@hono/node-server": "^2.0.0",
+    "axios": "^1.11.0",
+    "hono": "^4.9.6"
   },
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^12.0.6",
     "@semantic-release/npm": "^13.1.5",
-    "@vitest/ui": "^4.0.18",
-    "eslint": "^9.0.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.1.3",
-    "happy-dom": "^20.8.3",
-    "prettier": "^3.2.5",
+    "@vitest/ui": "^4.1.4",
+    "eslint": "^10.2.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "happy-dom": "^20.9.0",
+    "prettier": "^3.6.2",
     "semantic-release": "^25.0.3",
-    "vitest": "^4.0.18"
+    "vitest": "^4.1.4"
   },
   "engines": {
     "node": ">=18.0.0"

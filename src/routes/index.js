@@ -2,15 +2,10 @@ import { getHomepageHtml } from "../views/homepage.js";
 import { healthRoutes } from "./health/index.js";
 import { staticRoutes } from "./static/index.js";
 import { apiRoutes } from "./api/index.js";
+import { config } from "../config.js";
 import { errorResponse } from "../utils/response.js";
 
-const HOMEPAGE_EXCLUDED_PATHS = new Set(["/"]);
-const HOMEPAGE_HIDDEN_STATIC_PATHS = new Set([
-  "/favicon.svg",
-  "/favicon.ico",
-  "/apple-touch-icon.png",
-]);
-const HOMEPAGE_TRACKED_PATHS = ["/uptime", "/favicon", "/hitokoto"];
+const HOMEPAGE_VISIBLE_PATHS = ["/uptime", "/favicon", "/hitokoto"];
 
 const homepageRoute = {
   method: "GET",
@@ -28,16 +23,12 @@ export const routes = [
 
 function getHomepageMetadata() {
   const apiRoutes = routes
-    .filter(
-      (route) =>
-        !HOMEPAGE_EXCLUDED_PATHS.has(route.path) &&
-        !HOMEPAGE_HIDDEN_STATIC_PATHS.has(route.path)
-    )
+    .filter((route) => HOMEPAGE_VISIBLE_PATHS.includes(route.path))
     .map(({ method, path, description }) => ({ method, path, description }));
 
   return {
     apiRoutes,
-    trackedPaths: HOMEPAGE_TRACKED_PATHS,
+    statsProtected: Boolean(config.STATS_TOKEN),
   };
 }
 
